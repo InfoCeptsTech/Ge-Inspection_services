@@ -42,6 +42,15 @@ public class InspectionDtls {
   private String sensor_sensorType;
   private String sensor_sensorMode;
   private String inspectionPointId;
+  private int desiredLocationOnAsset_globalPosition_latitude;
+  private int desiredLocationOnAsset_globalPosition_longitude;
+  private int desiredLocationOnAsset_globalPosition_altitude;
+  
+  private int location_globalPosition_latitude;
+  private int location_globalPosition_longitude;
+  private int location_globalPosition_altitude;
+
+
   
   
 public String getBlobId() {
@@ -146,6 +155,48 @@ public String getInspectionPointId() {
 }
 public void setInspectionPointId(String inspectionPointId) {
 	this.inspectionPointId = inspectionPointId;
+}
+public int getDesiredLocationOnAsset_globalPosition_latitude() {
+	return desiredLocationOnAsset_globalPosition_latitude;
+}
+public void setDesiredLocationOnAsset_globalPosition_latitude(
+		int desiredLocationOnAsset_globalPosition_latitude) {
+	this.desiredLocationOnAsset_globalPosition_latitude = desiredLocationOnAsset_globalPosition_latitude;
+}
+public int getDesiredLocationOnAsset_globalPosition_longitude() {
+	return desiredLocationOnAsset_globalPosition_longitude;
+}
+public void setDesiredLocationOnAsset_globalPosition_longitude(
+		int desiredLocationOnAsset_globalPosition_longitude) {
+	this.desiredLocationOnAsset_globalPosition_longitude = desiredLocationOnAsset_globalPosition_longitude;
+}
+public int getDesiredLocationOnAsset_globalPosition_altitude() {
+	return desiredLocationOnAsset_globalPosition_altitude;
+}
+public void setDesiredLocationOnAsset_globalPosition_altitude(
+		int desiredLocationOnAsset_globalPosition_altitude) {
+	this.desiredLocationOnAsset_globalPosition_altitude = desiredLocationOnAsset_globalPosition_altitude;
+}
+public int getLocation_globalPosition_latitude() {
+	return location_globalPosition_latitude;
+}
+public void setLocation_globalPosition_latitude(
+		int location_globalPosition_latitude) {
+	this.location_globalPosition_latitude = location_globalPosition_latitude;
+}
+public int getLocation_globalPosition_longitude() {
+	return location_globalPosition_longitude;
+}
+public void setLocation_globalPosition_longitude(
+		int location_globalPosition_longitude) {
+	this.location_globalPosition_longitude = location_globalPosition_longitude;
+}
+public int getLocation_globalPosition_altitude() {
+	return location_globalPosition_altitude;
+}
+public void setLocation_globalPosition_altitude(
+		int location_globalPosition_altitude) {
+	this.location_globalPosition_altitude = location_globalPosition_altitude;
 }
   
   

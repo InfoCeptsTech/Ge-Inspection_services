@@ -1,77 +1,118 @@
 package com.ge.inspection.ir.daoImpl;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ge.inspection.ir.dao.IssueDao;
 import com.ge.inspection.ir.domain.muta.InspectionMedia;
+import com.ge.inspection.ir.model.InspectionModel;
+import com.ge.inspection.ir.model.IssueInspection;
 import com.ge.inspection.ir.model.IssueMarkerModel;
 import com.ge.inspection.ir.repository.muta.IssueDtlRepository;
+import com.ge.inspection.ir.util.JSONUtil;
 
 @Component("issueDaoImpl")
 public class IssueDaoImpl implements IssueDao{
 
 	@Autowired
 	private IssueDtlRepository issueDtlRepository;
+	@Autowired
+	private InspectionDaoImpl inspectionDaoImpl;
 	
-	public void addIssue(InspectionMedia inspectionMedia){
-    	//inspectionMedia.setIssueDate(new Date());
+	public void addIssue(List<InspectionMedia> inspectionMediaList){
+		/*
 		SimpleDateFormat formatter = new SimpleDateFormat("MMM dd yyyy");
 		try {
 			inspectionMedia.setInspectionDate(formatter.parse(inspectionMedia.getMediaDate()));
 		} catch (ParseException e) {
 			e.printStackTrace();
+		}*/
+		for(InspectionMedia inspectionMedia:inspectionMediaList){
+			issueDtlRepository.saveAndFlush(inspectionMedia);
 		}
-		issueDtlRepository.saveAndFlush(inspectionMedia);
+	
 	}
     
     @Override
-	public List<Date> getIssueDate(String inspectorId,String assetId) {
-		List<Date> issueDateList=issueDtlRepository.getIssueDate(inspectorId,assetId);
-		return issueDateList;
+	public List<IssueInspection> getIssueDate(String inspectorId,String assetId) {
+		List<InspectionMedia> issueDateList=issueDtlRepository.getIssueDate(inspectorId,assetId);
+		List<IssueInspection> issueInspectionList =getIssueInspection(issueDateList,inspectorId,assetId);
+		return issueInspectionList;
 	}
 
-	@Override
-	public List<InspectionMedia>  getIssueDtls(String inspectorId,String issueDateStr,String assetId) {
-		SimpleDateFormat formatter = new SimpleDateFormat("MMM dd yyyy");
-		List<InspectionMedia> inspectionDtlList=null;
-		try {
-			Date issueDate = formatter.parse(issueDateStr);
-			inspectionDtlList=issueDtlRepository.findIssue(inspectorId,issueDate,assetId);
-		}catch(Exception e){
-			e.printStackTrace();
+    
+    private List<IssueInspection> getIssueInspection(List<InspectionMedia> issueDateList,String inspectorId,String assetId){
+    	Set<String> inspectionIds =new HashSet<String>();
+    	List<InspectionModel> inspectionModelList=inspectionDaoImpl.getMediaDate(inspectorId,assetId);
+    	
+		/*
+		if(issueDate.size()>0){
+			String issueDateStr= df.format(issueDate.get(0));
+			List<InspectionMedia> inspectionMediaList= issueDaoImpl.getIssueDtls(inspectorId,issueDateStr,assetId);
+			IssueModel[] issueModelArray=getIssueJson(assetList,issueDate,inspectionMediaList,assetIndex);
+			issueDateJson=JSONUtil.toJson(issueModelArray);
+		}*/
+		for(InspectionMedia inspectionMedia:issueDateList){
+			inspectionIds.add(inspectionMedia.getInspectionId());
 		}
 		
+		List<IssueInspection> issueInspectionList=new ArrayList<IssueInspection>();
+		for(String inspectionId:inspectionIds){
+			if(inspectionId.equals(inspectionModelList.get(0).getInspectionId())){
+				IssueInspection issueInspection=new IssueInspection("my-issues",inspectionModelList.get(0).getDate() , inspectionModelList.get(0).getDuration(), null, inspectionId);
+				issueInspectionList.add(issueInspection);
+			}
+		}
+		
+		
+		return issueInspectionList;
+    }
+    
+	@Override
+	public List<InspectionMedia>  getIssueDtls(String inspectorId,String inspectionId,String assetId) {
+		List<InspectionMedia> inspectionDtlList=null;
+		inspectionDtlList=issueDtlRepository.findIssue(inspectorId,assetId,inspectionId);
 		return inspectionDtlList;
 	}
 
 	@Override
-	public List<IssueMarkerModel> getIssueMarker(String inspectorId,String inspectionDateStr) {
-		SimpleDateFormat formatter = new SimpleDateFormat("MMM dd yyyy");
+	public List<IssueMarkerModel> getIssueMarker(String inspectorId) {
 		List<IssueMarkerModel> issueMarkerModelList=null;
-		try {
-			Date inspectionDate = formatter.parse(inspectionDateStr);
-			List<InspectionMedia> inspectionDtlList=issueDtlRepository.findIssueMarker(inspectorId, inspectionDate);
-			issueMarkerModelList=getIssueMarkerModel(inspectionDtlList);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		
+		List<InspectionMedia> inspectionDtlList=issueDtlRepository.findIssueMarker(inspectorId);
+		issueMarkerModelList=getIssueMarkerModel(inspectionDtlList);
 		return issueMarkerModelList;
 	}
 
 	private List<IssueMarkerModel> getIssueMarkerModel(List<InspectionMedia> inspectionDtlList) {
 		List<IssueMarkerModel> issueMarkerList=new ArrayList<IssueMarkerModel>();
 		for(InspectionMedia inspectionMedia:inspectionDtlList){
-			issueMarkerList.add(new IssueMarkerModel(inspectionMedia.getBlobId()));
+			Object annotatedObject=JSONUtil.toObject(inspectionMedia.getAnnotatedMetadata(), Object.class);
+			File file=new File(inspectionMedia.getBlobId());
+			String id=file.getName().split("\\.")[0];
+			IssueMarkerModel issueModel=new IssueMarkerModel(id, "/Polymer/images/marker.png", "issue-marker", null,annotatedObject, inspectionMedia.getComment(), inspectionMedia.getDefectType(), inspectionMedia.getStatusType(),inspectionMedia.getDescription());
+		
+			issueMarkerList.add(issueModel);
 		}
         return issueMarkerList;	
+	}
+
+	@Override
+	public void updateIssue(InspectionMedia inspectionMedia) {
+		issueDtlRepository.updateIssue(inspectionMedia.getBlobId(),inspectionMedia.getStatusType());
+	}
+
+	@Override
+	public void addUpdateIssue(List<InspectionMedia> inspectionMediaList) {
+		for(int i=0;i<inspectionMediaList.size();i++){
+			
+		}
+		
 	}
 
 

@@ -1,0 +1,338 @@
+<link rel="import" href="/Polymer/bower_components/polymer/polymer.html">
+<!-- Polymer web component used to display issue list -->
+<dom-module id="my-issues">
+    <template>
+        <style>
+        :host {
+            display: block;
+        }
+        
+        .horizontal-section {
+            max-width: 32%;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        paper-icon-button {
+            display: inline-block;
+            margin: 0px;
+        }
+        
+        .paper-tooltip-0 #tooltip {
+            font-family: 'Roboto', 'Noto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            font-size: 12px;
+            line-height: 1;
+            background-color: rgba(255, 255, 255, 0.8);
+            opacity: 1;
+            color: #000;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #f0f0f0;
+        }
+        </style>
+         <iron-ajax
+            id="AjaxPost"
+            url="/ir-0.0.1/inspection/updateIssue"
+            method="POST"
+            content-type="application/json"
+            handle-as="json"
+            on-response="_handleAjaxPostResponse"
+            on-error="_handleAjaxPostError"
+            >
+        </iron-ajax>
+        <drones-data-service url="{{url}}" id="ajax" drones-service-response="{{issuesServiceResponse}}">
+        </drones-data-service>
+        <report-type-data-service url="/Polymer/report-type.json" report-type-service-response="{{reportTypeServiceResponse}}">
+        </report-type-data-service>
+        <!-- <div class="horizontal-section">
+             <span style="background: #F3F3F3;widht:20%;margin-left: 40%;">
+            <paper-icon-button icon="camera-enhance" class="grid-view-selected" id="cameraEnhance" on-click="cameraEnhanceSelected"></paper-icon-button>
+            <paper-icon-button icon="av:videocam" class="grid-view" id="videocam" on-click="videocamSelected"></paper-icon-button>
+            <paper-icon-button icon="invert-colors" class="grid-view" id="invertColorIssue" on-click="invertColorIssueSelected"></paper-icon-button>
+            <paper-icon-button icon="sort" class="grid-view" id="sort" on-click="sortSelected"></paper-icon-button>
+            <paper-icon-button icon="hardware:headset" class="grid-view" id="headset" on-click="headsetSelected"></paper-icon-button>
+             </span>
+        </div> -->
+        <div class="image-gallery-issue">
+            <template is="dom-repeat" items="{{issuesServiceResponse}}">
+                <template is="dom-repeat" items="{{item.inspection}}">
+                    <div class="image-gall">
+                        <template is="dom-repeat" items="{{item.issues}}">
+                            <div class="issues">
+                                <span class="issue-title"><img src="{{item.issues-markers}}" width="20" height="20">{{item.defectType}}</span>
+                                <!-- <img id="img-tooltip" src="{{item.mini-path}}" class="img-tooltip"> -->
+                                <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="{{item.miniPath}}" class="img-tooltip" id="img-tooltip-{{index}}">
+                                </paper-icon-button>
+                                <paper-tooltip for="img-tooltip-{{index}}">{{item.tooltip}}</paper-tooltip>
+                                <span style="width: 100%">
+                            <paper-dropdown-menu  on-selected-item-label-changed="_change" >
+                                <paper-listbox class="dropdown-content" selected="0" attr-for-selected="value" selected="0">
+                                    <paper-item>Fix</paper-item>
+                                    <paper-item>Continue to monitor</paper-item>
+                                    <paper-item>Manual Inspection</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                            </span>
+                            </div>
+                            <paper-dialog heading="" id="dialogIssue" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+                                <img src="{{item.megaPath}}" id="expandImgIssue">
+                                <div class="modal-footer ">
+                                    <paper-button dialog-dismiss class="btn-default">Close</paper-button>
+                                </div>
+                            </paper-dialog>
+                        </template>
+                    </div>
+                </template>
+            </template>
+        </div>
+        <br/>
+        <div class="bottom-section report-type">
+             <span class="reprt-type"> Report type: </span>
+            <paper-dropdown-menu id="report-type" style="width:40%" vertical-align="top" horizontal-align="left">
+                <paper-listbox class="dropdown-content" selected="0">
+                    <template is="dom-repeat" items="{{reportTypeServiceResponse}}">
+                        <!--  <paper-item>Regulatory Submission</paper-item>
+                                    <paper-item>Findings & Regualtions</paper-item>
+                                    <paper-item>Fit for purpose and Remediations</paper-item> -->
+                        <paper-item>{{item.type}}</paper-item>
+                    </template>
+                </paper-listbox>
+            </paper-dropdown-menu>
+            <a href="http://mstr-tomcat.immuta.io:8080/Inspection Reviewer/reports/GEFlareReport.pdf" download class="reviewbtn pull-right">Generate Report</a>
+        </div>
+    </template>
+    <script>
+    (function() {
+        Polymer({
+            is: 'my-issues',
+
+            properties: {
+                url: {
+                    type: String,
+                    value: ''
+                },
+
+                issuesServiceResponse: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    },
+                    notify: true,
+                    observer: 'handleResponse'
+                },
+                reportTypeServiceResponse: {
+                    type: Object,
+                    value: function() {
+                        return [];
+                    },
+                    notify: true
+                }
+            },
+             _change:function(e){
+                 this.megapath=e.model.item.megaPath;
+                if(e.detail.value.length>0){
+                 console.log("-->"+e.model.item.megaPath+"<--");
+                  document.getElementById('issueAjax').generateRequest();
+                   this.$.AjaxPost.body = [{
+                                        "id": this.megapath,
+                                        "statusType": e.detail.value
+                                        }];
+
+                               console.log(this.$.AjaxPost.body);     
+                
+                //this.$.AjaxPost.body = {"id":"/Polymer/images/0001.jpg"};
+                this.$.AjaxPost.generateRequest();
+
+                }
+ 
+            },  
+             _handleAjaxPostResponse:function(){
+                               
+             console.log("success");
+                
+            },
+            _handleAjaxPostError:function(){
+            console.log("error");
+            },  
+            cameraEnhanceSelected: function() {
+                var cameraEnhanceButtonClasses = document.getElementById("cameraEnhance").classList;
+                var videocamButtonClasses = document.getElementById("videocam").classList;
+                var invertColorIssueButtonClasses = document.getElementById("invertColorIssue").classList;
+                var sortButtonClasses = document.getElementById("sort").classList;
+                var headsetButtonClasses = document.getElementById("headset").classList;
+                cameraEnhanceButtonClasses.remove("grid-view");
+                cameraEnhanceButtonClasses.add("grid-view-selected");
+                if (!videocamButtonClasses.contains("grid-view")) {
+                    videocamButtonClasses.remove("grid-view-selected");
+                    videocamButtonClasses.add("grid-view");
+                }
+                if (!invertColorIssueButtonClasses.contains("grid-view")) {
+                    invertColorIssueButtonClasses.remove("grid-view-selected");
+                    invertColorIssueButtonClasses.add("grid-view");
+                }
+                if (!sortButtonClasses.contains("grid-view")) {
+                    sortButtonClasses.remove("grid-view-selected");
+                    sortButtonClasses.add("grid-view");
+                }
+                if (!headsetButtonClasses.contains("grid-view")) {
+                    headsetButtonClasses.remove("grid-view-selected");
+                    headsetButtonClasses.add("grid-view");
+                }
+
+
+            },
+            videocamSelected: function() {
+                var cameraEnhanceButtonClasses = document.getElementById("cameraEnhance").classList;
+                var videocamButtonClasses = document.getElementById("videocam").classList;
+                var invertColorIssueButtonClasses = document.getElementById("invertColorIssue").classList;
+                var sortButtonClasses = document.getElementById("sort").classList;
+                var headsetButtonClasses = document.getElementById("headset").classList;
+                videocamButtonClasses.remove("grid-view");
+                videocamButtonClasses.add("grid-view-selected");
+                if (!cameraEnhanceButtonClasses.contains("grid-view")) {
+                    cameraEnhanceButtonClasses.remove("grid-view-selected");
+                    cameraEnhanceButtonClasses.add("grid-view");
+                }
+                if (!invertColorIssueButtonClasses.contains("grid-view")) {
+                    invertColorIssueButtonClasses.remove("grid-view-selected");
+                    invertColorIssueButtonClasses.add("grid-view");
+                }
+                if (!sortButtonClasses.contains("grid-view")) {
+                    sortButtonClasses.remove("grid-view-selected");
+                    sortButtonClasses.add("grid-view");
+                }
+                if (!headsetButtonClasses.contains("grid-view")) {
+                    headsetButtonClasses.remove("grid-view-selected");
+                    headsetButtonClasses.add("grid-view");
+                }
+
+            },
+            invertColorIssueSelected: function() {
+                var cameraEnhanceButtonClasses = document.getElementById("cameraEnhance").classList;
+                var videocamButtonClasses = document.getElementById("videocam").classList;
+                var invertColorIssueButtonClasses = document.getElementById("invertColorIssue").classList;
+                var sortButtonClasses = document.getElementById("sort").classList;
+                var headsetButtonClasses = document.getElementById("headset").classList;
+                invertColorIssueButtonClasses.remove("grid-view");
+                invertColorIssueButtonClasses.add("grid-view-selected");
+                if (!cameraEnhanceButtonClasses.contains("grid-view")) {
+                    cameraEnhanceButtonClasses.remove("grid-view-selected");
+                    cameraEnhanceButtonClasses.add("grid-view");
+                }
+                if (!videocamButtonClasses.contains("grid-view")) {
+                    videocamButtonClasses.remove("grid-view-selected");
+                    videocamButtonClasses.add("grid-view");
+                }
+                if (!sortButtonClasses.contains("grid-view")) {
+                    sortButtonClasses.remove("grid-view-selected");
+                    sortButtonClasses.add("grid-view");
+                }
+                if (!headsetButtonClasses.contains("grid-view")) {
+                    headsetButtonClasses.remove("grid-view-selected");
+                    headsetButtonClasses.add("grid-view");
+                }
+
+            },
+            sortSelected: function() {
+                var cameraEnhanceButtonClasses = document.getElementById("cameraEnhance").classList;
+                var videocamButtonClasses = document.getElementById("videocam").classList;
+                var invertColorIssueButtonClasses = document.getElementById("invertColorIssue").classList;
+                var sortButtonClasses = document.getElementById("sort").classList;
+                var headsetButtonClasses = document.getElementById("headset").classList;
+                sortButtonClasses.remove("grid-view");
+                sortButtonClasses.add("grid-view-selected");
+                if (!cameraEnhanceButtonClasses.contains("grid-view")) {
+                    cameraEnhanceButtonClasses.remove("grid-view-selected");
+                    cameraEnhanceButtonClasses.add("grid-view");
+                }
+                if (!videocamButtonClasses.contains("grid-view")) {
+                    videocamButtonClasses.remove("grid-view-selected");
+                    videocamButtonClasses.add("grid-view");
+                }
+                if (!invertColorIssueButtonClasses.contains("grid-view")) {
+                    invertColorIssueButtonClasses.remove("grid-view-selected");
+                    invertColorIssueButtonClasses.add("grid-view");
+                }
+                if (!headsetButtonClasses.contains("grid-view")) {
+                    headsetButtonClasses.remove("grid-view-selected");
+                    headsetButtonClasses.add("grid-view");
+                }
+
+
+            },
+            headsetSelected: function() {
+                var cameraEnhanceButtonClasses = document.getElementById("cameraEnhance").classList;
+                var videocamButtonClasses = document.getElementById("videocam").classList;
+                var invertColorIssueButtonClasses = document.getElementById("invertColorIssue").classList;
+                var sortButtonClasses = document.getElementById("sort").classList;
+                var headsetButtonClasses = document.getElementById("headset").classList;
+                headsetButtonClasses.remove("grid-view");
+                headsetButtonClasses.add("grid-view-selected");
+                if (!cameraEnhanceButtonClasses.contains("grid-view")) {
+                    cameraEnhanceButtonClasses.remove("grid-view-selected");
+                    cameraEnhanceButtonClasses.add("grid-view");
+                }
+                if (!videocamButtonClasses.contains("grid-view")) {
+                    videocamButtonClasses.remove("grid-view-selected");
+                    videocamButtonClasses.add("grid-view");
+                }
+                if (!invertColorIssueButtonClasses.contains("grid-view")) {
+                    invertColorIssueButtonClasses.remove("grid-view-selected");
+                    invertColorIssueButtonClasses.add("grid-view");
+                }
+                if (!sortButtonClasses.contains("grid-view")) {
+                    sortButtonClasses.remove("grid-view-selected");
+                    sortButtonClasses.add("grid-view");
+                }
+
+
+            },
+            handleResponse: function() {
+                // console.log(this.dronesServiceResponse);
+                //debugger;
+                // alert(History.getState().url);
+                if (localStorage.getItem('issueUrl') != '' && localStorage.getItem('issueUrl') != null) {
+                    this.url = localStorage.getItem('issueUrl');
+                }
+                //alert(this.url);
+            },
+            addQuantity: function(e) {
+                // var target = e.model.item.id;
+                // var id = document.querySelector('#'+id);
+                // console.log(id);
+                // id.style.border = "2px solid blue";
+            },
+            toggleDialog: function(e) {
+                var dialog = document.querySelector('#dialogIssue');
+                var expand = document.querySelector('#expandImgIssue');
+                expand.src = e.model.item.megaPath;
+                dialog.toggle();
+            },
+            ready: function() {
+                // debugger;
+                title=localStorage.getItem('assetTitle');
+                inspectorId=localStorage.getItem('inspectorId');
+                    // alert("title in issue : "+title);
+                     if(title==null || title=='null'){
+                        this.url = "/ir-0.0.1/inspection/getIssues/inspectorId="+inspectorId;
+                     }else{
+                         this.url = "/ir-0.0.1/inspection/getIssueDate/inspectorId="+inspectorId+"&assetId="+title;   
+                     }
+                   //  alert(this.url);
+
+                var a = JSON.parse(localStorage.getItem('dronesServiceResponse'));
+                if (localStorage.getItem('issueUrl') != '' && localStorage.getItem('issueUrl') != null) {
+                    document.getElementById('ajax').generateRequest();
+                }
+                 
+
+                var a = JSON.parse(localStorage.getItem('dronesServiceResponse'));
+                console.log('hi');
+                console.log(a);
+              
+            }
+        });
+    })();
+    </script>
+</dom-module>

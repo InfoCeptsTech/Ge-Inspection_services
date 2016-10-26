@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class InspectionModel {
     private Date date;
     private String duration;
+    private String inspectionId;
     @JsonProperty("phase")
     private Set<MediaModel> mediaModel;
     private String url="my-media";
@@ -31,12 +32,15 @@ public class InspectionModel {
 	public void setMediaModel(Set<MediaModel> mediaModel) {
 		this.mediaModel = mediaModel;
 	}
-	public InspectionModel(Date date, String duration,
-			Set<MediaModel> mediaModel) {
+	
+	public InspectionModel(Date date, String duration, String inspectionId,
+			Set<MediaModel> mediaModel, String url) {
 		super();
 		this.date = date;
 		this.duration = duration;
+		this.inspectionId = inspectionId;
 		this.mediaModel = mediaModel;
+		this.url = url;
 	}
 	public String getUrl() {
 		return url;
@@ -44,5 +48,12 @@ public class InspectionModel {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+	public String getInspectionId() {
+		return inspectionId;
+	}
+	public void setInspectionId(String inspectionId) {
+		this.inspectionId = inspectionId;
+	}
+	
   
 }

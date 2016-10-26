@@ -2,10 +2,15 @@ package com.ge.inspection.ir.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+@JsonInclude(Include.NON_NULL)
 public class IssueModel {
     private String id;
     private String title;
     private String url;
+    @JsonProperty("inspection")
     private List<IssueInspection> issueInspection;
   
 	public String getId() {
@@ -32,5 +37,13 @@ public class IssueModel {
 	public void setIssueInspection(List<IssueInspection> issueInspection) {
 		this.issueInspection = issueInspection;
 	}
+	public IssueModel(String id, String title, String url,
+			List<IssueInspection> issueInspection) {
+		this.id = id;
+		this.title = title;
+		this.url = url;
+		this.issueInspection = issueInspection;
+	}
+	
   
 }

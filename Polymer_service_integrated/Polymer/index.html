@@ -1,0 +1,54 @@
+<!-- Used to display GE Dashboard -->
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Polymer Starter Kit">
+  <title>GE Inspection</title>
+
+  <!-- endbuild-->
+
+  <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <!-- endbuild -->
+
+  <!-- Because this project uses vulcanize this should be your only html import
+       in this file. All other imports should go in elements.html -->
+  <link rel="import" href="/Polymer/elements/elements.html">
+
+  <!-- For shared styles, shared-styles.html import in elements.html -->
+  <style is="custom-style" include="shared-styles">
+    
+
+a.iron-selected {
+    background: grey;
+}
+body{background:#636363;width:100%;}
+paper-drawer-panel{
+ background: #656262!important;
+}
+  </style>
+
+</head>
+
+<body unresolved>
+  <!-- build:remove -->
+  
+  <span id="browser-sync-binding"></span>
+  <!-- endbuild -->
+
+  <template is="dom-bind" id="app">
+
+  <!--<my-drone></my-drone>-->
+   <dash-login></dash-login>
+  <app-router>
+   <app-route path="/my-drone" import="/Polymer/elements/my-drone/my-drone.html"></app-route>
+  </app-router>
+
+  </template>
+</body>
+
+</html>

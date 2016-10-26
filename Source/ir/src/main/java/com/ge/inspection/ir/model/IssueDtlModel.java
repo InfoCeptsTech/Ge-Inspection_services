@@ -1,13 +1,30 @@
 package com.ge.inspection.ir.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+@JsonInclude(Include.NON_NULL)
 public class IssueDtlModel {
   private String defectType;
   private String miniPath;
   private String megaPath;
+  @JsonProperty("issues-markers")
   private String issuesMarker;
   private String statusType;
   private String toolTip;
   
+  
+public IssueDtlModel(String defectType, String miniPath, String megaPath,
+		String issuesMarker, String statusType, String toolTip) {
+	super();
+	this.defectType = defectType;
+	this.miniPath = miniPath;
+	this.megaPath = megaPath;
+	this.issuesMarker = issuesMarker;
+	this.statusType = statusType;
+	this.toolTip = toolTip;
+}
 public String getDefectType() {
 	return defectType;
 }

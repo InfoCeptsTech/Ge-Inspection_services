@@ -1,0 +1,987 @@
+<!-- Polymer web component used to display media list -->
+<link rel="import" href="/Polymer/bower_components/polymer/polymer.html">
+<link type="text/css" rel="stylesheet" href="/Polymer/bower_components/annotorious-bower/css/annotorious-dark.css" />
+<script type="text/javascript" src="/Polymer/bower_components/annotorious-bower/annotorious.min.js"></script>
+<dom-module id="my-media">
+    <template>
+        <style>
+        :host {
+            display: block;
+        }
+        
+        #ratings {
+            --paper-slider-active-color: #fff;
+            --paper-slider-height: 15px;
+            --paper-slider-container-color: #fff;
+            width: 50%;
+            float: left;
+            margin-top: 10px;
+        }
+        
+        #progressContainer {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 0 15px;
+            border-radius: 16px;
+        }
+        
+        .paper-progress-0 #primaryProgress.paper-progress {
+            background: #ccc;
+            padding: 0 15px;
+            border-radius: 15px;
+        }
+        
+        .sect {
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .dailog-box {
+            max-width: 100%;
+            position: absolute;
+            z-index: 17;
+            display: none;
+        }
+        
+        .dailog-box::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        .dialog-container.style-scope.my-media {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            z-index: 99999;
+            background: #fff;
+            box-shadow: 2px 3px 4px #ccc;
+            margin: 1%;
+            padding: 10px;
+            width: 96%;
+        }
+        </style>
+         <iron-ajax
+            id="AjaxPost"
+            url="/ir-0.0.1/inspection/addIssue"
+            method="POST"
+            content-type="application/json"
+            handle-as="json"
+            on-response="_handleAjaxPostResponse"
+            on-error="_handleAjaxPostError"
+            >
+        </iron-ajax>
+        <iron-ajax
+            id="ajaxAddUpdatePost"
+            url="/ir-0.0.1/inspection/addUpdateIssue"
+            method="POST"
+            content-type="application/json"
+            handle-as="json"
+            on-response="_handleAjaxPostResponse"
+            on-error="_handleAjaxPostError"
+            >
+        </iron-ajax>
+        <drones-data-service id="ajax" url="{{url}}" drones-service-response="{{droneServiceResponse}}">
+        </drones-data-service>
+        <iron-ajax id="issueAjax" url="{{markerurl}}" handle-as="json" on-response="handleResponseIssueMarker"></iron-ajax>
+        <!-- <iron-ajax auto id="annotoriousAjax" url="/Polymer/annotorious.json" handle-as="json" on-response="handleResponseAnnotorious"></iron-ajax> -->
+        <div class="image-gallery">
+            <template is="dom-repeat" items="{{dronesServiceResponse}}">
+                <template is="dom-repeat" items="{{item.inspection}}">
+                    <div class="image-gall">
+                        <template is="dom-repeat" items="{{item.phase}}">
+                            <span class="phase-title">{{item.title}}<label class="phase-title" id="{{item.title}}">0 issues</label><paper-checkbox class="paper-checkbox">NEED REVIEW</paper-checkbox></span>
+                            <br/>
+                            <div class="modal-body">
+                                <template is="dom-repeat" items="{{item.img}}">
+                                    <div class="abc" id="abc">
+                                        <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="{{item.miniPath}}" class="phases-img" id="{{item.id}}">
+                                            <!--  <img id="{{item.id}}" on-tap="addQuantity" raised class="phases-img" src="{{item.src}}"> -->
+                                        </paper-icon-button>
+                                        <!--  <img class$="{{item.class}}" src="{{item.issuePath}}"> -->
+                                    </div>
+                                    <!--  <paper-dialog heading="" id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop> -->
+                                    <div class="dailog-box" id="dialog-box">
+                                        <div class="dialog-container">
+                                            <div class="img-data">
+                                                <div class="zoomed-img flexchild">
+                                                  <img id="expandImg">
+                                                </div>
+                                                <div class="img-metadata flexchild">
+                                                    <!-- <h3> Altitude </h3>
+                                                    <span id="imgAltitude"> 42.026914</span>
+                                                    <hr> -->
+                                                    <div class="defectDrop">
+                                                        <span>Defect Type:</span>
+                                                        <paper-dropdown-menu>
+                                                            <paper-listbox id="type" class="dropdown-content" value="{{item.defectType}}" selected="0">
+                                                                <paper-item>Corrosion</paper-item>
+                                                                <paper-item>Thinning</paper-item>
+                                                                <paper-item>Stress cracking</paper-item>
+                                                                <paper-item>Mechanical Fatigue</paper-item>
+                                                                <paper-item>Thermal Fatigue</paper-item>
+                                                            </paper-listbox>
+                                                        </paper-dropdown-menu>
+                                                        <span>Status:</span>
+                                                        <paper-dropdown-menu>
+                                                            <paper-listbox id="statusType" class="dropdown-content" selected="0">
+                                                                <paper-item>Fix</paper-item>
+                                                                <paper-item>Continue to monitor</paper-item>
+                                                                <paper-item>Manual Inspection</paper-item>
+                                                            </paper-listbox>
+                                                        </paper-dropdown-menu>
+                                                        <hr>
+                                                        <span>Adding Inspection Requirement :</span>
+                                                        <div id="requirementMsg"></div>
+                                                        <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
+                                                                            on-keys-pressed="onEnter"></iron-a11y-keys>
+                                                        <paper-input id="inputRequirement"
+                                                                     placeholder="Enter requirements here"
+                                                                     value="{{userInput::input}}"></paper-input>
+
+                                                        <!-- <input type="text" id="requirementSection" on-tap="submitRequirement"> -->
+                                                        <!-- <paper-button class="submit addComment">Add</paper-button> -->
+                                                        <hr>
+                                                        <span>Enter Inspection Findings :</span>
+                                                        <div id="appendDate"></div>
+                                                        <div id="appendMsg"></div>
+                                                        <iron-a11y-keys id="a11z" target="[[targetComment]]" keys="enter" on-keys-pressed="onEnterComment"></iron-a11y-keys>
+                                                        <paper-input id="inputComment"
+                                                                     placeholder="Enter inspection findings"
+                                                                     value="{{userInputComment::input}}"></paper-input>
+
+                                                       <!--  <input type="text" id="commentSection">
+                                                        <paper-textarea label="" id="commentSection"></paper-textarea>
+                                                        <paper-button class="submit addComment" on-click="submitComment">Add</paper-button> -->
+                                                        <hr>
+                                                        
+                                                    </div>
+                                                    <div class="editCropSection">
+                                                      <paper-icon-button src="/Polymer/images/zoomout_rest.png" on-click="zoomOut"></paper-icon-button>
+                                                    <paper-icon-button src="/Polymer/images/zoomin_rest.png" on-click="zoomIn"></paper-icon-button>
+                                                    </div>
+                                                    <!-- <div class="editCropSection">
+                                                        <iron-icon icon="icons:flip-to-back"></iron-icon>
+                                                        <iron-icon icon="icons:create"></iron-icon>
+                                                 </div>
+                                                    <div class="modal-footer ">
+
+                                                    </div> -->
+
+                                                <div class="modal-footer ">
+
+                                                <paper-button on-click="saveDialog" class="btn-default">Save</paper-button>
+                                                <paper-button on-click="closeDialog" class="btn-default">Close</paper-button>
+                                            </div>
+                                                </div>
+
+                                            </div>
+                                            
+                                                </div>
+                                            </div>
+                                            
+                                            <!--     </paper-dialog> -->
+
+                            </div>
+                    </div>
+                    </template>
+        </div>
+        <paper-dialog heading="" id="editDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+            <div>
+                <span>
+                                Defect Type:
+                                <br/>
+                            </span>
+                <span>
+                                 <paper-dropdown-menu>
+                                <paper-listbox class="dropdown-content" selected="0" id="popdefectType">
+                                    <paper-item>Corrosion</paper-item>
+                                    <paper-item>Thinning</paper-item>
+                                    <paper-item>Stress cracking</paper-item>
+                                    <paper-item>Mechanical Fatigue</paper-item>
+                                    <paper-item>Thermal Fatigue</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                            </span>
+            </div>
+            <div>
+                <span>
+                                Status:
+                                <br/>
+                            </span>
+                <span>
+                                  <paper-dropdown-menu>
+                                <paper-listbox class="dropdown-content" selected="0" id="popstatusType">
+                                    <paper-item>Fix</paper-item>
+                                    <paper-item>Continue to monitor</paper-item>
+                                    <paper-item>Manual Inspection</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                            </span>
+            </div>
+            <div class="modal-footer ">
+                <paper-button dialog-dismiss class="submit" on-click="editSubmitClick">Submit</paper-button>
+                <paper-button dialog-dismiss class="close">Close</paper-button>
+            </div>
+        </paper-dialog>
+        <paper-dialog heading="" id="commentDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+            <span>Enter Comments Here:</span>
+            <paper-textarea label="" id="popupcomments"></paper-textarea>
+            <div class="modal-footer">
+                <paper-button dialog-dismiss class="submit" on-click="addComments">Submit</paper-button>
+                <paper-button dialog-dismiss class="close">Close</paper-button>
+            </div>
+        </paper-dialog>
+        <div class="editSection" style="border-bottom:1px solid #ccc">
+            <span class="edit">
+                        <paper-icon-button src="/Polymer/images/edit.PNG" on-click="toggleDialogEdit"></paper-icon-button>
+                        </span>
+            <span class="comment">
+                        <paper-icon-button src="/Polymer/images/comment.PNG" on-click="toggleDialogComment"></paper-icon-button>
+                        </span>
+        </div>
+        </template>
+        </div>
+        </template>
+        </template>
+        </div>
+        <!-- <paper-slider id="ratings" pin snaps min="0" max="18" max-markers="18" step="1" value="4.15" editable></paper-slider> -->
+        <paper-button id="reviewBtn" class="reviewbtn pull-right reviewMargin">Review Issue</paper-button>
+        <!--  <paper-dialog id="modal" modal>
+            <template is="dom-repeat " items="{{dronesServiceResponse}} ">
+                <template is="dom-repeat " items="{{item.inspection}} ">
+                    <div class="image-gall ">
+                        <template is="dom-repeat " items="{{item.phase}} ">
+                            <template is="dom-if " if="{{item.img}}=='id' " items="{{item.img}} ">
+                                <img class="phases-img " src="{{item.src}} ">
+                            </template>
+                        </template>
+                    </div>
+                </template>
+            </template>
+            <div class="buttons ">
+                <paper-button dialog-confirm autofocus>Tap me to close</paper-button>
+            </div>
+        </paper-dialog> -->
+    </template>
+    <script>
+    (function() {
+        Polymer({
+            is: 'my-media',
+
+            properties: {
+                droneServiceResponse: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    },
+                    notify: true,
+                    observer: 'handleResponse'
+                },
+                dronesServiceResponse: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    },
+                    notify: true
+                        // observer: 'handleResponse'
+                },
+                idArr: {
+                    type: Array,
+                    value: []
+                },
+                megaPath:{
+                    type:String,
+                    value:''
+                },
+                issueMarkerServiceResponse: {
+                    type: Array,
+                    value: function() {
+                        return [];
+                    },
+                    notify: true,
+                    observer: 'handleResponseIssueMarker'
+                },
+                // annotoriousResponse: {
+                //     type: Array,
+                //     value: function() {
+                //         return [];
+                //     },
+                //     notify: true,
+                //     observer: 'handleResponseAnnotorious'
+                // },
+                phase: {
+                    type: Array,
+                    notify: true,
+                    value: function() {
+                        return [];
+                    }
+                },
+                meta: {
+                    type: Array,
+                    notify: true,
+                    value: function() {
+                        return [];
+                    }
+                },
+                url: {
+                    type: String,
+                    value: ''
+                },
+                annoArray: {
+                    type: Array,
+                    value: []
+                },
+                userInput: {
+                    type: String,
+                    notify: true,
+                  },
+                  target: {
+                    type: Object,
+                    value: function() {
+                      return document.querySelector('#input');
+                    }
+                  },
+                  userInputComment: {
+                    type: String,
+                    notify: true,
+                  },
+                  targetComment: {
+                    type: Object,
+                    value: function() {
+                      return document.querySelector('#inputComment');
+                    }
+                  }
+
+            },
+            handleResponse: function() {
+                // debugger;
+                this.dronesServiceResponse = this.droneServiceResponse;
+                //console.log(this.dronesServiceResponse);
+                if (this.dronesServiceResponse.length > 0) {
+                    var a = JSON.stringify(this.dronesServiceResponse);
+                    localStorage.setItem('dronesServiceResponse', a);
+                    this.dronesServiceResponse = JSON.parse(localStorage.getItem('dronesServiceResponse'));
+                    this.url = localStorage.getItem('url');
+                    inspectorId=localStorage.getItem('inspectorId');
+                    document.getElementById('issueAjax').url="/ir-0.0.1/inspection/getIssueMarker/inspectorId="+inspectorId;
+
+                    document.getElementById('issueAjax').generateRequest();
+                }
+
+            },
+            handleResponseIssueMarker: function() {
+                //debugger;
+                this.issueMarkerServiceResponse = this.$.issueAjax.lastResponse;
+                // console.log('issue-marker:');
+                 console.log(this.issueMarkerServiceResponse);
+                if (this.issueMarkerServiceResponse != undefined) {
+                    for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
+                        var elem = document.createElement("img");
+                        elem.setAttribute("src", this.issueMarkerServiceResponse[i].issuePath);
+                        elem.setAttribute("class", this.issueMarkerServiceResponse[i].class);
+                        if(document.getElementById(this.issueMarkerServiceResponse[i].id)!=undefined){
+                        document.getElementById(this.issueMarkerServiceResponse[i].id).appendChild(elem);    
+                        }
+                        
+                    }
+                }
+            },
+             _handleAjaxPostResponse:function(){
+                               
+                var inspectionId=localStorage.getItem("inspectionId");
+                var assetId=localStorage.getItem("assetId");
+               // alert("success");
+               var inspectorId=localStorage.getItem("inspectorId");
+
+                document.getElementById('issueAjax').url="/ir-0.0.1/inspection/getIssueMarker/inspectorId="+inspectorId;
+
+                document.getElementById('issueAjax').generateRequest();
+                
+            },
+            _handleAjaxPostError:function(){
+             //   alert("error");
+            },
+            // handleResponseAnnotorious: function() {
+            //     //debugger;
+            //     this.annotoriousResponse = this.$.annotoriousAjax.lastResponse;
+            // },
+            addQuantity: function(e) {
+                //debugger;
+                var target = e.model.item.id;
+               // var id = document.querySelector('#' + target),
+               var id = document.getElementById(target);
+                    style = window.getComputedStyle(id),
+                    border = style.getPropertyValue('border'),
+                    borderNone = "0px none rgb(0, 0, 0)";
+                if (border.toString() == borderNone) {
+                    id.style.border = "4px solid #049FCF";
+                    this.idArr.push(target);
+                } else {
+                    id.style.border = "none";
+                    var index = this.idArr.indexOf(target);
+                    this.idArr.splice(index, 1);
+                }
+                // console.log(this.stringify(this.dronesServiceResponse));
+                //  console.log(this.dronesServiceResponse);
+            }, ready:function(){
+                
+                     title=localStorage.getItem('assetTitle');
+                     inspectorId=localStorage.getItem('inspectorId');
+                     inspectionId=localStorage.getItem('inspectionId');
+
+                    // alert("title in media: "+title+ ", inspectionId: "+inspectionId);
+                     
+                     if(title==null || title=='null'){
+                        this.url = "/ir-0.0.1/inspection/getAsset/inspectorId="+inspectorId;
+                     }else if(inspectionId==null || inspectionId=='undefined'){
+                         this.url = "/ir-0.0.1/inspection/getMediaDate/inspectorId="+inspectorId+"&assetId="+title;   
+                     }else{
+                         this.url = "/ir-0.0.1/inspection/getMedia/inspectorId="+inspectorId+"&assetId="+title+"&inspectionId="+inspectionId; 
+
+                         var inspectionId=localStorage.getItem("inspectionId");
+                         var assetId=localStorage.getItem("assetId");
+                     }
+                      this.markerurl="/ir-0.0.1/inspection/getIssueMarker/inspectorId="+inspectorId
+                    // alert(this.url);
+
+                     
+            },
+            addComments:function(e){
+                //debugger;
+                var inspection;
+                var phase;
+                var inspectionArr;
+                var img = [];
+                var id = null;
+
+                var id;
+                var comments;
+                var inspectorId;
+                var defectType;
+                var statusType;
+                var inspectionId;
+                var assetId;
+                  debugger;
+                if (this.idArr.length > 0) {
+
+                    var objectArray=[];
+
+                        for (var i = 0; i < this.dronesServiceResponse.length; i++) {
+                              inspection = this.dronesServiceResponse[i].inspection;
+                              for (var j = 0; j < inspection.length; j++) {
+                                phaseArr = inspection[j].phase;
+                                if(phaseArr){
+                                for(var k=0;k<phaseArr.length;k++){
+                                    if(phaseArr){
+                                    var imgList=phaseArr[k].img;
+                                    for(var x=0;x<imgList.length;x++){
+                                         for(var l=0;l<this.idArr.length;l++){
+                                            if(this.idArr[l]==imgList[x].id){
+                                                console.log(this.dronesServiceResponse[i].title);
+                                                console.log("id : "+imgList[x].id);
+                                                console.log("mega path: "+imgList[x].megaPath);
+                                                console.log("phase : "+phaseArr[k].title);
+                                                console.log("inspection Id: "+inspection[j].inspectionId);
+                                                /*
+                                                console.log("defect type: "+getDefectName(document.getElementById('popdefectType').selected));
+                                                console.log("status type: "+getStatusName(document.getElementById('popstatusType').selected));
+                                                */
+
+                                                console.log("inspectorId: "+localStorage.getItem('inspectorId'));
+
+                                                objectArray.push({
+                                                        "id": imgList[x].megaPath,
+                                                        "inspectorId": localStorage.getItem('inspectorId'),
+                                                        "comments": document.getElementById('popupcomments').value,
+                                                        /*
+                                                        "defectType": getDefectName(document.getElementById('popdefectType').selected),
+                                                        "statusType": getStatusName(document.getElementById('popstatusType').selected),
+                                                        */
+                                                        "assetId": this.dronesServiceResponse[i].title,
+                                                        "inspectionId": inspection[j].inspectionId
+                                                        
+                                                    });
+                           
+                                                    }
+                                                }
+                                        }
+                                     }
+
+                                    }
+                                }
+                                }
+
+                               console.log(objectArray);   
+                               this.$.AjaxPost.body=  objectArray;
+                               this.$.AjaxPost.generateRequest();
+
+                             
+
+                        }
+                    return;
+        
+                } else {
+                    alert('Please select image');
+                }
+            },
+
+            editSubmitClick: function(e) {
+                //debugger;
+                var inspection;
+                var phase;
+                var inspectionArr;
+                var img = [];
+                var id = null;
+
+                var id;
+                var comments;
+                var inspectorId;
+                var defectType;
+                var statusType;
+                var inspectionId;
+                var assetId;
+                  debugger;
+                if (this.idArr.length > 0) {
+
+                    var objectArray=[];
+
+                        for (var i = 0; i < this.dronesServiceResponse.length; i++) {
+                              inspection = this.dronesServiceResponse[i].inspection;
+                              for (var j = 0; j < inspection.length; j++) {
+                                phaseArr = inspection[j].phase;
+                                if(phaseArr){
+                                for(var k=0;k<phaseArr.length;k++){
+                                    if(phaseArr){
+                                    var imgList=phaseArr[k].img;
+                                    for(var x=0;x<imgList.length;x++){
+                                         for(var l=0;l<this.idArr.length;l++){
+                                            if(this.idArr[l]==imgList[x].id){
+                                                console.log(this.dronesServiceResponse[i].title);
+                                                console.log("id : "+imgList[x].id);
+                                                console.log("mega path: "+imgList[x].megaPath);
+                                                console.log("phase : "+phaseArr[k].title);
+                                                console.log("inspection Id: "+inspection[j].inspectionId);
+                                                console.log("defect type: "+getDefectName(document.getElementById('popdefectType').selected));
+                                                console.log("status type: "+getStatusName(document.getElementById('popstatusType').selected));
+                                                console.log("inspectorId: "+localStorage.getItem('inspectorId'));
+
+                                                objectArray.push({
+                                                        "id": imgList[x].megaPath,
+                                                        "inspectorId": localStorage.getItem('inspectorId'),
+                                                        "comments": '',
+                                                        "defectType": getDefectName(document.getElementById('popdefectType').selected),
+                                                        "statusType": getStatusName(document.getElementById('popstatusType').selected),
+                                                        "assetId": this.dronesServiceResponse[i].title,
+                                                        "inspectionId": inspection[j].inspectionId
+                                                        
+                                                    });
+                           
+                                                    }
+                                                }
+                                        }
+                                     }
+
+                                    }
+                                }
+                                }
+
+                               console.log(objectArray);   
+                               this.$.AjaxPost.body=  objectArray;
+                               this.$.AjaxPost.generateRequest();
+
+                             
+
+                        }
+return;
+            /*
+            "id"
+            "comments"
+            "inspectorId"
+            "defectType";
+            "statusType";
+            "inspectionId";
+            "assetId";
+            */
+
+                  
+                    // for (var i = 0; i < this.dronesServiceResponse.length; i++) {
+                    //     inspection = this.dronesServiceResponse[i].inspection;
+                    //     for (var j = 0; j < inspection.length; j++) {
+                    //         inspectionArr = inspection[j].phase;
+                    //         //  phase.push(inspection[j].phase);
+
+
+                    //         for (var k = 0; k < inspectionArr.length; k++) {
+                    //             phase = inspectionArr[k].img;
+                    //             for (var b = 0; b < phase.length; b++) {
+                    //                 img.push(phase[b]);
+                    //             }
+
+                    //         }
+                    //     }
+                    // }
+                    // for (var i = 0; i < img.length; i++) {
+                    //     for (var k = 0; k < this.idArr.length; k++) {
+                    //         if (this.idArr[k] == img[i].id) {
+                    //             img[i].issuePath = "/images/marker.png";
+                    //             img[i].classPath = "issue-marker";
+                    //         }
+                    //     }
+                    // }
+
+
+                    // for (var i = 0; i < this.dronesServiceResponse.length; i++) {
+                    //     inspection = null;
+                    //     inspectionArr = null;
+                    //     phase = null;
+                    //     inspection = this.dronesServiceResponse[i].inspection;
+                    //     for (var j = 0; j < inspection.length; j++) {
+                    //         inspectionArr = inspection[j].phase;
+                    //         //  phase.push(inspection[j].phase);
+
+
+                    //         for (var k = 0; k < inspectionArr.length; k++) {
+                    //             phase = inspectionArr[k].img;
+                    //             for (var b = 0; b < phase.length; b++) {
+                    //                 // img.push(phase[b]);
+                    //                 for (var x = 0; x < img.length; x++) {
+                    //                     for (var l = 0; l < this.idArr.length; l++) {
+                    //                         if (this.idArr[l] == img[x].id &&
+                    //                             img[x].id == phase[b].id) {
+                    //                             phase[b] = img[x];
+                    //                         }
+                    //                     }
+                    //                 }
+                    //             }
+
+                    //         }
+                    //     }
+                    // }
+                    //console.log('hi');
+                    // console.log(this.dronesServiceResponse);
+                    //debugger;
+                    inspectorId=localStorage.getItem('inspectorId');
+                    this.url = "/ir-0.0.1/inspection/getMediaDate/inspectorId="+inspectorId;
+                    localStorage.setItem('url', this.url);
+                    //localStorage.setItem('issueUrl', '/Polymer/issues1.json');
+                    document.getElementById('ajax').url = this.url;
+                    document.getElementById('ajax').generateRequest();
+                    document.getElementById('issueAjax').generateRequest();
+                    this.urlState('/my-iassets');
+                    var a = document.querySelector("#media");
+                    var b = document.querySelector("#issues");
+                    a.style.display = "none";
+                    b.style.display = "block";
+                    var b = document.querySelector("#issuesTab");
+                    b.selected = "1";
+
+
+                } else {
+                    alert('Please select image');
+                }
+            },
+            toggleDialog: function(e) {
+
+                debugger;
+                anno.reset();
+                // anno.destroy("http://localhost:8000/images/0002.jpg");
+                anno.removeAnnotation(this.annoArray);
+                var dialog = document.querySelector('#dialog');
+                var expand = document.querySelector('#expandImg');
+                /*var altitude = document.querySelector('#imgAltitude');*/
+                expand.src = e.model.item.miniPath;
+                this.megaPath=e.model.item.megaPath;
+                var div = document.getElementById("dialog-box");
+                div.style.display = "block";
+                this.annoArray = [];
+                //var annotationsArray = [];
+                for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
+                    if (e.model.item.id == this.issueMarkerServiceResponse[i].id) {
+                        //annotationsArray = this.annotoriousResponse[i].annotation;
+                        this.annoArray = this.issueMarkerServiceResponse[i].annotation;
+                        expand.style.width = this.issueMarkerServiceResponse[i].width + "px";
+                        expand.style.height = this.issueMarkerServiceResponse[i].height + "px";
+                        break;
+
+                    }
+                }
+                anno.setProperties({
+                    stroke: 'red',
+                    stroke_width: 5,
+                    hi_stroke: '#3e87e8',
+                    hi_stroke_width: 5
+                });
+                var a = this.annoArray;
+                anno.makeAnnotatable(document.getElementById('expandImg'));
+                document.getElementById("expandImg").onload = function() {
+                    //alert("The image has loaded!");
+
+                    var obj;
+                    for (var i = 0; i < a.length; i++) {
+                        obj = a[i];
+
+                        anno.addAnnotation(obj);
+                        anno.addHandler('onMouseOverAnnotation', function(event) {
+                            anno.highlightAnnotation(obj);
+                        });
+
+                        // anno.activateSelector(a[i].src);
+                    }
+
+
+                    //anno.showAnnotations(document.getElementById('expandImg'));
+
+
+                };
+                // dialog.toggle();
+                /*var a = [];
+                var id = null;
+                id = e.model.item.id;
+                for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
+                    if(id == this.issueMarkerServiceResponse[i].id){
+
+                        a = this.issueMarkerServiceResponse[i].metaData;
+                        break;
+                    }
+                         altitude = (a[0].altitude);
+                    }*/
+            },
+            closeDialog: function() {
+                //debugger;
+                var div = document.getElementById("dialog-box");
+                div.style.display = "none";
+                //anno.makeAnnotatable(document.getElementById('expandImg'));
+                //anno.destroy(document.getElementById('expandImg'));
+                for (var i = 0; i < this.annoArray.length; i++) {
+                    anno.removeAnnotation(this.annoArray[i]);
+                }
+
+            },
+            saveDialog: function(e) {
+                
+                var id=this.megaPath;
+                               
+                var div = document.getElementById("dialog-box");
+                var inspectorId=localStorage.getItem('inspectorId');
+                var defectType=getDefectName(document.getElementById("type").selected);
+                var comments= document.getElementById('inputRequirement').value;
+                var desc= document.getElementById('inputComment').value;
+
+                var statusType=getStatusName(document.getElementById("statusType").selected);
+               
+                var assetId=localStorage.getItem("assetTitle");
+                var inspectionId=localStorage.getItem("inspectionId");
+                var annotatedMetadata=anno.getAnnotations();
+                  
+
+
+                console.log("id : "+id+ "defectType: "+defectType+", comments: "+comments+", statusType : "+statusType+" , assetId : "+assetId+" , inspectionId: "+inspectionId+" , annotatedMetadata: "+annotatedMetadata+" , desc: "+desc);
+
+
+                this.$.AjaxPost.body = [{
+                                        "id": id,
+                                        "inspectorId": inspectorId,
+                                        "annotation": annotatedMetadata,
+                                        "comments": comments,
+                                        "defectType": defectType,
+                                        "statusType": statusType,
+                                        "assetId": assetId,
+                                        "inspectionId": inspectionId,
+                                        "description": desc
+                                    }
+                                    ];
+
+                               console.log(this.$.AjaxPost.body);     
+                
+                //this.$.AjaxPost.body = {"id":"/Polymer/images/0001.jpg"};
+                this.$.AjaxPost.generateRequest();
+
+                div.style.display = "none";
+                var obj = {
+                    "id": e.model.item.id,
+                    "annotation": anno.getAnnotations()
+                };
+                //anno.destroy(document.getElementById('expandImg'));
+                 for(var i=0;i<this.annoArray.length;i++){
+                     anno.removeAnnotation(this.annoArray[i]);
+                }
+
+              
+            },
+            toggleDialogEdit: function(e) {
+                var dialog = document.querySelector('#editDialog');
+                dialog.toggle();
+            },
+            toggleDialogComment: function(e) {
+                var dialog = document.querySelector('#commentDialog');
+                dialog.toggle();
+            },
+            onEnter: function(e) {
+            debugger;
+            console.log('v');
+            console.log(this.target);
+              console.log(this.userInput);
+              this.target = null;
+              this.targetComment = null;
+              this.target = document.querySelector('#input');
+              
+                var requirement = null;
+                var id = null;
+                id = e.model.item.id;
+                for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
+                    if(id == this.issueMarkerServiceResponse[i].id){
+                    
+                    requirement = this.userInput;
+                    document.querySelector('#requirementMsg').innerHTML = requirement;
+                    break;
+                    }
+                    else
+                    {
+                        requirement = "";
+                        document.querySelector('#requirementMsg').innerHTML = requirement;
+
+                    }
+                }
+            },
+            onEnterComment: function(e) {
+                debugger;
+                console.log(this.userInputComment);
+                var d = new Date();
+                var month = d.getMonth() + 1;
+                var day = d.getDate();
+
+                var output = (('' + day).length < 2 ? '0' : '') + day + '/' +
+                    (('' + month).length < 2 ? '0' : '') + month + '/' +
+                    d.getFullYear();
+                var CurrentDate = output;
+                console.log(CurrentDate);
+
+
+                var comments = null;
+                var commentArray = [];
+                var id = null;
+                id = e.model.item.id;
+                for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
+                if(id == this.issueMarkerServiceResponse[i].id){
+                    comments = this.userInputComment;
+                    commentArray.push(comments);
+                    var count = commentArray.length;
+                    for(var i=0; i < count; i++){
+                        console.log(commentArray[i]);
+                        document.querySelector('#appendDate').append(CurrentDate);
+                        document.querySelector('#appendMsg').append(commentArray[i]);
+                    }
+                    
+
+                        break;
+                    } else {
+
+                        comments = "";
+                        document.querySelector('#appendMsg').innerHTML = comments;
+
+                    }
+                }
+            },
+            stringify: function(obj) {
+                return JSON.stringify(obj);
+            },
+            zoomOut: function() {
+                debugger;
+                var zm = 0.9;
+                var zoomLevel = 100;
+                var maxZoomLevel = 105;
+                var minZoomLevel = 95;
+                var img = document.getElementById("expandImg");
+                if (zoomLevel > minZoomLevel) {
+                    zoomLevel--;
+                } else {
+                    return;
+                }
+                wid = img.width;
+                ht = img.height;
+                img.style.width = (wid * zm) + "px";
+                img.style.height = (ht * zm) + "px";
+                // img.style.marginLeft = -(img.width / 2) + "px";
+                // img.style.marginTop = -(img.height / 2) + "px";
+            },
+            zoomIn: function() {
+                debugger;
+                var zm = 1.1;
+                var zoomLevel = 100;
+                var maxZoomLevel = 105;
+                var minZoomLevel = 95;
+                var img = document.getElementById("expandImg");
+                if (zoomLevel < maxZoomLevel) {
+                    zoomLevel++;
+                } else {
+                    return;
+                }
+                wid = img.width;
+                ht = img.height;
+                img.style.width = (wid * zm) + "px";
+                img.style.height = (ht * zm) + "px";
+                // alert(img.style.width);
+                // alert(img.style.height);
+                // img.style.marginLeft = -(img.width / 2) + "px";
+                // img.style.marginTop = -(img.height / 2) + "px";
+            },
+            /*setTarget: function(){
+                this.target = document.querySelector('#input');
+                this.targetComment = null;
+            },
+            setTargetComment: function(){
+                this.target = null;
+                this.targetComment = document.querySelector('#inputComment');
+            },*/
+            urlState: function(urlPath) {
+                //debugger;
+                window.history.pushState('', '', urlPath);
+                window.dispatchEvent(new PopStateEvent('popstate', {
+                    bubbles: false,
+                    cancelable: false,
+                    state: {
+                        message: ''
+                    }
+                }));
+            }
+        });
+    })();
+    function getStatusName(statusId){
+              if(statusId==0){
+                 return "Fix";
+              }else if(statusId==1){
+                 return "Continue to Monitor";
+              }else if(statusId==2){
+                 return "Manual Inspection";
+              }
+            }
+            function getDefectName(statusId){
+              if(statusId==0){
+                 return "Corrosion";
+              }else if(statusId==1){
+                 return "Thinning";
+              }else if(statusId==2){
+                 return "Stress cracking";
+              }else if(statusId==3){
+                 return "Mechanical Fatigue";
+              }else if(statusId==4){
+                 return "Thermal Fatigue";
+              }
+
+            }
+    </script>
+    <!-- <script>
+    document.addEventListener('WebComponentsReady', function() {
+        var ratings = document.querySelector('#ratings');
+        ratings.addEventListener('value-change', function() {
+            document.querySelector('#ratingsLabel').textContent = ratings.value;
+        });
+    });
+    </script> -->
+</dom-module>

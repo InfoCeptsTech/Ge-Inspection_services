@@ -7,11 +7,13 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class AssetModel {
+	private String id;
     private String title;
     private String url="my-assets";
     private List<InspectionModel> inspection;
     
-	public AssetModel( String title,List<InspectionModel> inspection) {
+	public AssetModel(String id, String title,List<InspectionModel> inspection) {
+		this.id=id;
 		this.title = title;
 		this.inspection = inspection;
 	}
@@ -32,6 +34,12 @@ public class AssetModel {
 	}
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
 	}
   
 }
