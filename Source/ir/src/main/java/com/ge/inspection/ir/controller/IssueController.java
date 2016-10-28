@@ -80,7 +80,9 @@ public class IssueController {
 			InspectionMedia media=new InspectionMedia(comment,blobId,inspectorId,new Date(),assetId,statusType,defectType,inspectionId);
 			inspectionMediaList.add(media);
 			
+			
 		}
+		issueDaoImpl.addUpdateIssue(inspectionMediaList);
 	  return "success";	
 	}
 	

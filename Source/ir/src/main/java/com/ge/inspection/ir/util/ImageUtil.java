@@ -7,6 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 
 import javax.imageio.IIOImage;
@@ -56,6 +59,20 @@ public class ImageUtil {
 			e.printStackTrace();
 		}
 		return compressedImageFile.getName();
+	}
+	
+	public static byte[] getImageBinary(String originalLocation){
+		byte[] data=null;
+		try {
+         
+	    Path path = Paths.get(originalLocation);
+	    data = Files.readAllBytes(path);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return data;
 	}
 	
 	public static boolean isCompressedFilePresent(String location){

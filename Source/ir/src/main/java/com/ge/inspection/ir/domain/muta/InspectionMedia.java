@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -12,65 +13,64 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 @Entity
+@Table(name="inspection_media")
 public class InspectionMedia {
+	@Column(length = 4000) 
+	private String comment; 
+	@Id 
+	private String blobId; 
+	private String inspectorId; 
+	@Temporal(TemporalType.TIMESTAMP) 
+	private Date inspectionDate; 
+	private String assetId; 
+	private String statusType; 
+	private String defectType; 
+	private String inspectionId; 
+	@Column(length = 4000) 
+	private String annotatedMetadata; 
+	@Column(length = 4000) 
+	private String description; 
 	@Column(length = 4000)
-	private String comment;
-	@Id
-	private String blobId;
-	private String inspectorId;
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date inspectionDate;
-	private String assetId;
-	private String statusType;
-	private String defectType;
-	private String inspectionId;
-	@Column(length = 4000)
-	private String annotatedMetadata;
-	@Column(length = 4000)
-    private String description;
 	private String annotedComments;
+	
 	
 	public InspectionMedia() {
 		super();
 	}
 
-	
-	public InspectionMedia(String comment, String blobId, String inspectorId,
-			Date inspectionDate, String assetId, String statusType,
-			String defectType, String inspectionId) {
-		super();
-		this.comment = comment;
-		this.blobId = blobId;
-		this.inspectorId = inspectorId;
-		this.inspectionDate = inspectionDate;
-		this.assetId = assetId;
-		this.statusType = statusType;
-		this.defectType = defectType;
-		this.inspectionId = inspectionId;
+	public InspectionMedia(String comment, String blobId,
+			String inspectorId, Date inspectionDate, String statusType,
+			String defectType, String annotatedMetadata, String description) {
+		this.comment=comment;
+		this.blobId=blobId;
+		this.inspectorId=inspectorId;
+		this.inspectionDate=inspectionDate;
+		this.statusType=statusType;
+		this.defectType=defectType;
+		this.annotatedMetadata=annotatedMetadata;
+		this.description=description;
+		
 	}
-
-
-	public InspectionMedia(String comment, String blobId, String inspectorId,
-			Date inspectionDate, String statusType, String defectType,
-			String annotatedMetadata,String description,String assetId,String inspectionId) {
-		super();
-		this.comment = comment;
-		this.blobId = blobId;
-		this.inspectorId = inspectorId;
-		this.inspectionDate = inspectionDate;
-		this.statusType = statusType;
-		this.defectType = defectType;
-		this.annotatedMetadata = annotatedMetadata;
+	
+	public InspectionMedia(String comment, String blobId,
+			String inspectorId, Date inspectionDate, String statusType,
+			String defectType, String annotatedMetadata, String description,
+			String assetId, String inspectionId) {
+		this.comment=comment;
+		this.blobId=blobId;
+		this.inspectorId=inspectorId;
+		this.inspectionDate=inspectionDate;
+		this.statusType=statusType;
+		this.defectType=defectType;
+		this.annotatedMetadata=annotatedMetadata;
 		this.description=description;
 		this.assetId=assetId;
 		this.inspectionId=inspectionId;
 	}
-
 	public InspectionMedia(String blobId, Date inspectionDate, String statusType) {
-		super();
-		this.blobId = blobId;
-		this.inspectionDate = inspectionDate;
-		this.statusType = statusType;
+		this.blobId=blobId;
+		this.inspectionDate=inspectionDate;
+		this.statusType=statusType;
 	}
 
 	public String getComment() {
@@ -115,34 +115,30 @@ public class InspectionMedia {
 	public void setDefectType(String defectType) {
 		this.defectType = defectType;
 	}
-	public String getAnnotatedMetadata() {
-		return annotatedMetadata;
-	}
-	public void setAnnotatedMetadata(String annotatedMetadata) {
-		this.annotatedMetadata = annotatedMetadata;
-	}
-
 	public String getInspectionId() {
 		return inspectionId;
 	}
 	public void setInspectionId(String inspectionId) {
 		this.inspectionId = inspectionId;
 	}
-
+	public String getAnnotatedMetadata() {
+		return annotatedMetadata;
+	}
+	public void setAnnotatedMetadata(String annotatedMetadata) {
+		this.annotatedMetadata = annotatedMetadata;
+	}
 	public String getDescription() {
 		return description;
 	}
-
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
 	public String getAnnotedComments() {
 		return annotedComments;
 	}
-
 	public void setAnnotedComments(String annotedComments) {
 		this.annotedComments = annotedComments;
-	}
+	} 
+
 	
 }

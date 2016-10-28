@@ -13,4 +13,5 @@ public interface IssueDao {
   public void updateIssue(InspectionMedia inspectionMedia);
   public List<IssueInspection> getIssueDate(String inspectorId,String assetId);
   public List<IssueMarkerModel>  getIssueMarker(String inspectorId);
+  public List<Object[]> getIssueCount(String inspectorId);
 }

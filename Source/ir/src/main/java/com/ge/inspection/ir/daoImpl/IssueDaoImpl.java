@@ -2,6 +2,7 @@ package com.ge.inspection.ir.daoImpl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -109,10 +110,23 @@ public class IssueDaoImpl implements IssueDao{
 
 	@Override
 	public void addUpdateIssue(List<InspectionMedia> inspectionMediaList) {
-		for(int i=0;i<inspectionMediaList.size();i++){
-			
+		for(InspectionMedia inspectionMedia:inspectionMediaList){
+			if(issueDtlRepository.findOne(inspectionMedia.getBlobId())!=null){
+				if(inspectionMedia.getDefectType()!=null && inspectionMedia.getDefectType().trim().length()>0){
+					issueDtlRepository.updateIssueType(inspectionMedia.getBlobId(), inspectionMedia.getStatusType(), inspectionMedia.getInspectorId(), inspectionMedia.getDefectType(), inspectionMedia.getInspectionId(), inspectionMedia.getAssetId(), new Date());		
+				}else{
+					issueDtlRepository.updateComments(inspectionMedia.getBlobId(), inspectionMedia.getInspectorId(), inspectionMedia.getComment(), inspectionMedia.getInspectionId(), inspectionMedia.getAssetId(), new Date());		
+				}
+				
+			}else{
+				issueDtlRepository.saveAndFlush(inspectionMedia);
+			}
 		}
 		
+	}
+	
+	public List<Object[]> getIssueCount(String inspectorId){
+		return issueDtlRepository.getIssueCount(inspectorId);
 	}
 
 

@@ -2,9 +2,14 @@ package com.ge.inspection.ir.daoImpl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +24,7 @@ import com.ge.inspection.ir.model.InspectionModel;
 import com.ge.inspection.ir.model.MediaModel;
 import com.ge.inspection.ir.model.Metadata;
 import com.ge.inspection.ir.repository.immuta.InspectionDtlRepository;
-import com.ge.inspection.ir.util.ImageUtil;
+import com.ge.inspection.ir.rest.ImageCallable;
 
 @Component("inspectionDao")
 public class InspectionDaoImpl implements InspectionDao {
@@ -31,6 +36,15 @@ public class InspectionDaoImpl implements InspectionDao {
     
     @Value("${media.location}")
    	private String mediaLocation;
+    
+    @Value("${immuta.authenticate.url}")
+    private String authenticateUrl;
+    @Value("${immuta.image.url}")
+    private String imageUrl;
+    @Value("${immuta.authenticate.username}")
+    private String username;
+    @Value("${immuta.authenticate.password}")
+    private String password;
     
 	@Override
 	public AssetModel[] getInspectionDtls(String inspectorId) {
@@ -105,6 +119,10 @@ public class InspectionDaoImpl implements InspectionDao {
 	
 	private Set<MediaModel> getMedia(List<InspectionDtls> inspectionDtlsList){
 		Set<MediaModel> phaseSet=new HashSet<MediaModel>();
+		ExecutorService executor = Executors.newFixedThreadPool(10);
+    	List<Future<Map<String,String>>> list = new ArrayList<Future<Map<String,String>>>();
+    	Map<String,String> allImgMap=new HashMap<String, String>();
+		
 		for(InspectionDtls inspectionDtls:inspectionDtlsList){
 			phaseSet.add(new MediaModel(inspectionDtls.getInspectionPhaseId()));
 		}
@@ -115,7 +133,7 @@ public class InspectionDaoImpl implements InspectionDao {
 					for(InspectionDtls inspectionDtls:inspectionDtlsList){
 						if(inspectionDtls.getInspectionPhaseId().equalsIgnoreCase(phase.getTitle())){
 							
-							String compPath=ImageUtil.storeAndCompressedFile(mediaLocation+inspectionDtls.getBlobId(), compMediaLocation);
+							//String compPath=ImageUtil.storeAndCompressedFile(mediaLocation+inspectionDtls.getBlobId(), compMediaLocation);
 							File file=new File(inspectionDtls.getBlobId());
 							String id=file.getName().split("\\.")[0];
 							
@@ -123,12 +141,46 @@ public class InspectionDaoImpl implements InspectionDao {
 							
 							Metadata metadata=new Metadata("Altitude",String.valueOf(inspectionDtls.getLocation_globalPosition_altitude()));
 							metadataList.add(metadata);
-							imageModelList.add(new ImageModel(id,"/Polymer/temp/"+ compPath, inspectionDtls.getBlobId(),inspectionDtls.getInspectionStop(),inspectionDtls.getInspectionStart(),metadataList));
+							
+							String imgPath=inspectionDtls.getBlobId();
+				    		ImageCallable callable =new ImageCallable(imgPath,authenticateUrl,imageUrl,username,password);
+				    		Future<Map<String,String>> future = executor.submit(callable);
+				    		list.add(future);
+				    		 
+							//byte[] imgByte=ImageUtil.getImageBinary(mediaLocation+inspectionDtls.getBlobId());
+							
+							imageModelList.add(new ImageModel(id,inspectionDtls.getBlobId(), inspectionDtls.getBlobId(),inspectionDtls.getInspectionStop(),inspectionDtls.getInspectionStart(),metadataList,""));
 							index++;
 						}
 					}
 					phase.setImageModel(imageModelList);
 		}
+		for(Future<Map<String,String>> future : list){
+   		 try {
+   			 Map<String,String> imgMap=future.get();
+   			 allImgMap.putAll(imgMap);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+   	 }
+   	 executor.shutdown();
+   	
+   	for(MediaModel phase:phaseSet){
+   		for(InspectionDtls inspectionDtls:inspectionDtlsList){
+			if(inspectionDtls.getInspectionPhaseId().equalsIgnoreCase(phase.getTitle())){
+		   		List<ImageModel> imageModelList=phase.getImageModel();
+		   		for(int i=0;i<imageModelList.size();i++){
+		   			ImageModel imageModel=imageModelList.get(i);
+		   			imageModelList.get(i).setImgBinary(allImgMap.get(imageModel.getMegaPath()));
+		   		}
+		   		phase.setImageModel(imageModelList);
+			}
+			
+   		}
+   		
+   	    phaseSet.add(phase);
+     }
+   	  
 		return phaseSet;
 	}
 	

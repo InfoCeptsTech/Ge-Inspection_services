@@ -1,5 +1,6 @@
 package com.ge.inspection.ir.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -10,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ge.inspection.ir.dao.InspectionDao;
+import com.ge.inspection.ir.dao.IssueDao;
 import com.ge.inspection.ir.model.AssetModel;
 import com.ge.inspection.ir.model.InspectionModel;
+import com.ge.inspection.ir.model.IssueCount;
 import com.ge.inspection.ir.model.MediaModel;
 import com.ge.inspection.ir.util.JSONUtil;
 
@@ -20,6 +23,9 @@ public class InspectionController {
  
 	@Autowired
 	private InspectionDao inspectionDao;
+	
+	@Autowired
+	private IssueDao issueDao;
 	
 	@RequestMapping(value = "/inspection/getInspection/inspectorId={inspectorId}", method = RequestMethod.GET)
 	public String getAssets(@PathVariable String inspectorId){
@@ -37,7 +43,7 @@ public class InspectionController {
 			List<InspectionModel> inspectionList=inspectionDao.getMediaDate(inspectorId,assetId);
 			
 			Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionList.get(0).getInspectionId());
-			AssetModel[] assetModel=createJson(assetList,inspectionList,mediaList,0,0);
+			AssetModel[] assetModel=createJson(inspectorId,assetList,inspectionList,mediaList,0,0);
 			assetJson=JSONUtil.toJson(assetModel);	
 		}
 		
@@ -60,7 +66,7 @@ public class InspectionController {
 		}
 		
 		Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionList.get(0).getInspectionId());
-		AssetModel[] assetModel=createJson(assetList,inspectionList,mediaList,assetIndex,mediaIndex);
+		AssetModel[] assetModel=createJson(inspectorId,assetList,inspectionList,mediaList,assetIndex,mediaIndex);
 		String assetJson=JSONUtil.toJson(assetModel);
 		
 		return assetJson;
@@ -83,17 +89,18 @@ public class InspectionController {
 		}
 		
 		Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionId);
-		AssetModel[] assetModel=createJson(assetList,inspectionList,mediaList,assetIndex,mediaIndex);
+		AssetModel[] assetModel=createJson(inspectorId,assetList,inspectionList,mediaList,assetIndex,mediaIndex);
 		String assetJson=JSONUtil.toJson(assetModel);
 		
 		return assetJson;
 	}
 	
 	
-	private AssetModel[] createJson(List<String> assetList,List<InspectionModel> inspectionModelList,Set<MediaModel> mediaList,int assetIndex,int mediaIndex){
+	private AssetModel[] createJson(String inspectorId,List<String> assetList,List<InspectionModel> inspectionModelList,Set<MediaModel> mediaList,int assetIndex,int mediaIndex){
 		
 		AssetModel[] assetModelArray = new AssetModel[assetList.size()];
 		int assetIndexLocal=0;
+		List<Object[]>  issueCountObj=issueDao.getIssueCount(inspectorId);
 		for(String asset:assetList){
 			AssetModel assetModel=null;
 			 int mediaIndexLocal=0;
@@ -107,10 +114,22 @@ public class InspectionController {
 					inspectionModel.setMediaModel(mediaList);
 				
 			 }
+				List<IssueCount> issueCountList=new ArrayList<IssueCount>();
+				for(Object obj:issueCountObj){
+					//System.out.println(obj);
+					Object[] assetObj=(Object[]) obj;
+					if(obj!=null && assetObj[0].equals(asset)){
+						if(!assetObj[1].equals(null) && !assetObj[1].equals("null")){
+							IssueCount issueCount=new IssueCount(String.valueOf(assetObj[1]),String.valueOf(assetObj[2]));
+							issueCountList.add(issueCount);
+						}
+						
+					}
+				}
 			if(assetIndexLocal==assetIndex){
-				assetModel=new AssetModel(String.valueOf(mediaIndexLocal),asset,inspectionModelList);
+				assetModel=new AssetModel(String.valueOf(mediaIndexLocal),asset,inspectionModelList,issueCountList);
 			}else{
-				assetModel=new AssetModel(String.valueOf(mediaIndexLocal),asset,null);
+				assetModel=new AssetModel(String.valueOf(mediaIndexLocal),asset,null,issueCountList);
 			}
 			mediaIndexLocal++;
 		  }

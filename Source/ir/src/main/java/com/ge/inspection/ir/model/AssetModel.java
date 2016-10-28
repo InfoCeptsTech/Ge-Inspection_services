@@ -10,12 +10,14 @@ public class AssetModel {
 	private String id;
     private String title;
     private String url="my-assets";
+    private List<IssueCount> issueCount;
     private List<InspectionModel> inspection;
     
-	public AssetModel(String id, String title,List<InspectionModel> inspection) {
+	public AssetModel(String id, String title,List<InspectionModel> inspection,List<IssueCount> issueCount) {
 		this.id=id;
 		this.title = title;
 		this.inspection = inspection;
+		this.issueCount=issueCount;
 	}
 	public String getTitle() {
 		return title;
@@ -40,6 +42,12 @@ public class AssetModel {
 	}
 	public void setId(String id) {
 		this.id = id;
+	}
+	public List<IssueCount> getIssueCount() {
+		return issueCount;
+	}
+	public void setIssueCount(List<IssueCount> issueCount) {
+		this.issueCount = issueCount;
 	}
   
 }
