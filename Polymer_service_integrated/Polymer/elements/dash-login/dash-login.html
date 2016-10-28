@@ -21,9 +21,9 @@
     background: #fff
 }
 .login-panel div{
-   padding-top: 4em;
-   padding-bottom: 4em;
- }
+
+   padding:9.5em 0px;}
+
 
 form {
     width:380px;
@@ -248,12 +248,12 @@ input:focus ~ label, input.used ~ label {
 	username=document.getElementById('username').value;
 	password=document.getElementById('password').value;
 	document.getElementById('loginEndpoint').url=urlPost+"&username="+username+"&password="+password;
-  localStorage.setItem('inspectorId', username);
+ 
 
    if(username !=="" && password!=""){ 
       var xx=document.getElementById("basic1");
       xx.style.display="none";
-
+        localStorage.setItem('inspectorId', username);
       document.querySelector('app-router').go('/my-drone');
    }
    else

@@ -451,7 +451,7 @@ paper-dialog paper-button {
 paper-button[autofocus] {
     color: #4285f4;
 }
-
+/*
 .modal-footer {
     padding: 15px 15px 0 !important;
     text-align: center;
@@ -460,8 +460,17 @@ paper-button[autofocus] {
     bottom: 23px;
     width: auto;
     float: left;
+}*/
+ .modal-footer {   padding: 15px 15px 0 !important;
+    text-align: right;
+    border-top: 1px solid #e5e5e5;
+    position: absolute;
+    /* bottom: 23px; */
+    width: auto;
+    /* float: right; */
+    left: 51px;
+    right: 0;
 }
-
 .modal-body {
     float: left;
     width: 100%;
@@ -617,7 +626,7 @@ app-route.style-scope.my-drone {
 
 .issue-marker {
     position: absolute;
-    top: 25%;
+    top: 35%;
     margin: 0 auto;
     text-align: center;
     width: 40px;
@@ -689,7 +698,7 @@ paper-input-container.style-scope.paper-textarea.x-scope.paper-input-container-1
 
 .paper-dialog-0 > * {
     margin-top: 0px;
-    padding: 0 24px;
+    padding: 0 0px;
 }
 
 #commentDialog {
@@ -869,8 +878,8 @@ paper-dialog#dialog {
 }
 
 img#expandImg {
-    min-width: 999px !important;
-    min-height: 551px !important;
+    min-width: 900px !important;
+    min-height: 500px !important;
 }
 
 .paper-slider-0 .slider-markers.paper-slider {
@@ -949,8 +958,8 @@ paper-textarea#commentSection {
 .annotorious-annotationlayer {
     max-width: 100% !important;
     overflow: auto !important;
-    height: 560px !important;
-    width: 999px !important;
+    height: 500px !important;
+    width: 900px !important;
 }
 
 #media,
@@ -1101,9 +1110,11 @@ input[type=range]:focus::-ms-fill-upper {
 /* input type range css ends here*/
 
 .filters {
-    width: 60%;
     margin-bottom: 20px;
     margin-left: 10px;
+    margin-top: 20px;
+    text-align: right;
+    margin-right: 10px;
 }
 .filters label.style-scope.my-drone {
     font-size: 14px;
@@ -1112,4 +1123,56 @@ input[type=range]:focus::-ms-fill-upper {
 #reviewBtn
 {
     display: none;
+}
+#imageDetail
+{
+       background: #f0f0f0;
+    padding: 5px 5px;
+    text-align: left;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin-top: 15px;
+    width: 207px;
+}
+.Imgtitle.style-scope.my-media {
+    font-size: 14px;
+    margin-top: 10px;
+    font-weight: 600;
+    color: #444;
+}
+
+.ImgValue.style-scope.my-media {
+    font-size: 14px;
+}
+hr.divider.style-scope.my-media {
+    display: none;
+}
+paper-input#input, #inputComment {
+    float: left;
+    width: 100%;
+}
+.deco-collpase{
+      padding: 18px 5px;
+    background: #fff;
+    transition-duration: 0s;
+    margin-top: 23px;
+    width: 207px;
+    border: 1px solid #ccc;
+}
+.addBtn{ width: 18px !important;
+    height: 18px;
+    border: 1px Solid #ccc;
+    margin-right: 7px;}
+.paper-input-container-1 .input-content.paper-input-container input, .paper-input-container-1 .input-content.paper-input-container textarea, .paper-input-container-1 .input-content.paper-input-container iron-autogrow-textarea, .paper-input-container-1 .input-content.paper-input-container .paper-input-input {
+  font-size: 14px!important;
+}
+#appendMsg{
+    max-height: 91px;
+     min-height:0px;
+     box-shadow: 1px 1px 5px #ccc;
+     padding: 0px 5px;
+    font-size: 13px;
+    width: 95%;
+    overflow: auto;
+        padding:0px 6px;
 }

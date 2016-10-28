@@ -1,7 +1,7 @@
 <!-- Polymer web component used to display media list -->
 <link rel="import" href="/Polymer/bower_components/polymer/polymer.html">
-<link type="text/css" rel="stylesheet" href="/Polymer/bower_components/annotorious-bower/css/annotorious-dark.css" />
-<script type="text/javascript" src="/Polymer/bower_components/annotorious-bower/annotorious.min.js"></script>
+<link type="text/css" rel="stylesheet" href="/Polymer/elements/annotorious-bower/css/annotorious-dark.css" />
+<script type="text/javascript" src="/Polymer/elements/annotorious-bower/annotorious.min.js"></script>
 <dom-module id="my-media">
     <template>
         <style>
@@ -90,6 +90,20 @@
         </drones-data-service>
         <iron-ajax id="issueAjax" url="{{markerurl}}" handle-as="json" on-response="handleResponseIssueMarker"></iron-ajax>
         <!-- <iron-ajax auto id="annotoriousAjax" url="/Polymer/annotorious.json" handle-as="json" on-response="handleResponseAnnotorious"></iron-ajax> -->
+        <div class="filters">
+            <paper-dropdown-menu id="filters" on-iron-select="_itemSelected" label="Filter By:">
+                <paper-listbox class="dropdown-content">
+                    <paper-item>Altitude</paper-item>
+                    <!--  <paper-item>Latitude &amp; Longitutde</paper-item> -->
+                </paper-listbox>
+            </paper-dropdown-menu>
+            <paper-dropdown-menu id="filtersValue" on-iron-select="_valueSelected">
+                <paper-listbox class="dropdown-content" selected="0">
+                    <paper-item>0-40</paper-item>
+                    <paper-item>40-80</paper-item>
+                </paper-listbox>
+            </paper-dropdown-menu>
+        </div>
         <div class="image-gallery">
             <template is="dom-repeat" items="{{dronesServiceResponse}}">
                 <template is="dom-repeat" items="{{item.inspection}}">
@@ -100,7 +114,7 @@
                             <div class="modal-body">
                                 <template is="dom-repeat" items="{{item.img}}">
                                     <div class="abc" id="abc">
-                                        <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="{{item.miniPath}}" class="phases-img" id="{{item.id}}">
+                                         <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="data:image/jpg;base64,{{item.imgBinary}}" class="phases-img" id="{{item.id}}">
                                             <!--  <img id="{{item.id}}" on-tap="addQuantity" raised class="phases-img" src="{{item.src}}"> -->
                                         </paper-icon-button>
                                         <!--  <img class$="{{item.class}}" src="{{item.issuePath}}"> -->
@@ -110,7 +124,7 @@
                                         <div class="dialog-container">
                                             <div class="img-data">
                                                 <div class="zoomed-img flexchild">
-                                                  <img id="expandImg">
+                                                    <img id="expandImg">
                                                 </div>
                                                 <div class="img-metadata flexchild">
                                                     <!-- <h3> Altitude </h3>
@@ -119,7 +133,7 @@
                                                     <div class="defectDrop">
                                                         <span>Defect Type:</span>
                                                         <paper-dropdown-menu>
-                                                            <paper-listbox id="type" class="dropdown-content" value="{{item.defectType}}" selected="0">
+                                                            <paper-listbox class="dropdown-content" selected="0">
                                                                 <paper-item>Corrosion</paper-item>
                                                                 <paper-item>Thinning</paper-item>
                                                                 <paper-item>Stress cracking</paper-item>
@@ -129,41 +143,53 @@
                                                         </paper-dropdown-menu>
                                                         <span>Status:</span>
                                                         <paper-dropdown-menu>
-                                                            <paper-listbox id="statusType" class="dropdown-content" selected="0">
+                                                            <paper-listbox class="dropdown-content" selected="0">
                                                                 <paper-item>Fix</paper-item>
                                                                 <paper-item>Continue to monitor</paper-item>
                                                                 <paper-item>Manual Inspection</paper-item>
                                                             </paper-listbox>
                                                         </paper-dropdown-menu>
-                                                        <hr>
-                                                        <span>Adding Inspection Requirement :</span>
+                                                        <br/>
+                                                        <span id="imageDetail"><iron-icon icon="add" on-click="_onClick" class="addBtn"></iron-icon>Image Detail</span>
+                                                        <iron-collapse style="width:219px">
+                                                            <div class="deco-collpase">
+                                                                <div class="Imgtitle">Altitude</div>
+                                                                <div class="ImgValue">87.5465</div>
+                                                                <div class="Imgtitle">Latitude &amp; Longitude</div>
+                                                                <div class="ImgValue">(3.414725, -122.167969)</div>
+                                                            </div>
+                                                        </iron-collapse>
+                                                        </paper-dropdown-menu>
+                                                        <!-- <button id="imageDetail" on-click="toggleDescr">Image Detail</button>
+                                                        <iron-collapse id="collapse" class="deco-collpase">
+                                                          <div>
+                                                            <div class="Imgtitle">Altitude</div>
+                                                            <div class="ImgValue">87.5465</div>
+                                                            <div class="Imgtitle">Latitude &amp; Longitude</div>
+                          <div class="ImgValue">(3.414725, -122.167969)</div>
+                                                          </div>
+                                                        </iron-collapse> -->
+                                                        <span>Inspection Requirement :</span>
+                                                        <div id="appendMsg" class="hii">
+                                                            <div class="issue-date">
+                                                            </div>
+                                                        </div>
+                                                        <iron-a11y-keys id="a11y" target="[[target]]" keys="enter" on-keys-pressed="onEnter"></iron-a11y-keys>
+                                                        <paper-input id="input" placeholder="Enter inspection requirements here" value="{{userInput::input}}" on-focus="setTarget"></paper-input>
                                                         <div id="requirementMsg"></div>
-                                                        <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
-                                                                            on-keys-pressed="onEnter"></iron-a11y-keys>
-                                                        <paper-input id="inputRequirement"
-                                                                     placeholder="Enter requirements here"
-                                                                     value="{{userInput::input}}"></paper-input>
-
                                                         <!-- <input type="text" id="requirementSection" on-tap="submitRequirement"> -->
                                                         <!-- <paper-button class="submit addComment">Add</paper-button> -->
-                                                        <hr>
-                                                        <span>Enter Inspection Findings :</span>
-                                                        <div id="appendDate"></div>
-                                                        <div id="appendMsg"></div>
+                                                        <hr class="divider">
+                                                        <span>Inspection Findings :</span>
                                                         <iron-a11y-keys id="a11z" target="[[targetComment]]" keys="enter" on-keys-pressed="onEnterComment"></iron-a11y-keys>
-                                                        <paper-input id="inputComment"
-                                                                     placeholder="Enter inspection findings"
-                                                                     value="{{userInputComment::input}}"></paper-input>
-
-                                                       <!--  <input type="text" id="commentSection">
+                                                        <paper-input id="inputComment" placeholder="Enter inspection findings" value="{{userInputComment::input}}" on-focus="setTargetComment"></paper-input>
+                                                        <!--  <input type="text" id="commentSection">
                                                         <paper-textarea label="" id="commentSection"></paper-textarea>
                                                         <paper-button class="submit addComment" on-click="submitComment">Add</paper-button> -->
-                                                        <hr>
-                                                        
                                                     </div>
                                                     <div class="editCropSection">
-                                                      <paper-icon-button src="/Polymer/images/zoomout_rest.png" on-click="zoomOut"></paper-icon-button>
-                                                    <paper-icon-button src="/Polymer/images/zoomin_rest.png" on-click="zoomIn"></paper-icon-button>
+                                                        <paper-icon-button src="/Polymer/images/zoomout_rest.png" on-click="zoomOut"></paper-icon-button>
+                                                        <paper-icon-button src="/Polymer/images/zoomin_rest.png" on-click="zoomIn"></paper-icon-button>
                                                     </div>
                                                     <!-- <div class="editCropSection">
                                                         <iron-icon icon="icons:flip-to-back"></iron-icon>
@@ -172,21 +198,15 @@
                                                     <div class="modal-footer ">
 
                                                     </div> -->
-
-                                                <div class="modal-footer ">
-
-                                                <paper-button on-click="saveDialog" class="btn-default">Save</paper-button>
-                                                <paper-button on-click="closeDialog" class="btn-default">Close</paper-button>
-                                            </div>
-                                                </div>
-
-                                            </div>
-                                            
+                                                    <div class="modal-footer ">
+                                                        <paper-button on-click="saveDialog" class="btn-default">Save</paper-button>
+                                                        <paper-button on-click="closeDialog" class="btn-default">Close</paper-button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            
-                                            <!--     </paper-dialog> -->
-
+                                        </div>
+                                    </div>
+                                    <!--     </paper-dialog> -->
                             </div>
                     </div>
                     </template>
@@ -199,7 +219,7 @@
                             </span>
                 <span>
                                  <paper-dropdown-menu>
-                                <paper-listbox class="dropdown-content" selected="0" id="popdefectType">
+                                <paper-listbox class="dropdown-content" selected="0"  id="popdefectType">
                                     <paper-item>Corrosion</paper-item>
                                     <paper-item>Thinning</paper-item>
                                     <paper-item>Stress cracking</paper-item>
@@ -231,9 +251,9 @@
         </paper-dialog>
         <paper-dialog heading="" id="commentDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
             <span>Enter Comments Here:</span>
-            <paper-textarea label="" id="popupcomments"></paper-textarea>
+            <paper-textarea label="" id="textarea"></paper-textarea>
             <div class="modal-footer">
-                <paper-button dialog-dismiss class="submit" on-click="addComments">Submit</paper-button>
+                <paper-button dialog-dismiss class="submit">Submit</paper-button>
                 <paper-button dialog-dismiss class="close">Close</paper-button>
             </div>
         </paper-dialog>
@@ -322,7 +342,21 @@
                         return [];
                     }
                 },
-                meta: {
+                img: {
+                    type: Array,
+                    notify: true,
+                    value: function() {
+                        return [];
+                    }
+                },
+                title: {
+                    type: Array,
+                    notify: true,
+                    value: function() {
+                        return [];
+                    }
+                },
+                metadata: {
                     type: Array,
                     notify: true,
                     value: function() {
@@ -340,28 +374,49 @@
                 userInput: {
                     type: String,
                     notify: true,
-                  },
-                  target: {
+                },
+                target: {
                     type: Object,
                     value: function() {
-                      return document.querySelector('#input');
+                        return document.querySelector('#input');
                     }
-                  },
-                  userInputComment: {
+                },
+                userInputComment: {
                     type: String,
                     notify: true,
-                  },
-                  targetComment: {
+                },
+                targetComment: {
                     type: Object,
                     value: function() {
-                      return document.querySelector('#inputComment');
+                        return document.querySelector('#inputComment');
+                    },
+                    annoSpanId: {
+                        type: Number,
+                        value: 0
                     }
-                  }
+                },
+                currentId:{
+                    type: String,
+                    value: ''
+                }
 
+            },
+            _onClick: function() {
+                var button = this.querySelector('iron-icon'),
+                    collapse = this.querySelector('iron-collapse')
+                collapse.toggle()
+                if (collapse.opened) {
+                    Polymer.dom(button).setAttribute('icon', 'remove')
+                } else if (!collapse.opened) {
+                    Polymer.dom(button).setAttribute('icon', 'add')
+                }
+            },
+            _hideShow: function() {
+                document.getElementById("appendMsg").style.height = "auto";
             },
             handleResponse: function() {
                 // debugger;
-                this.dronesServiceResponse = this.droneServiceResponse;
+               this.dronesServiceResponse = this.droneServiceResponse;
                 //console.log(this.dronesServiceResponse);
                 if (this.dronesServiceResponse.length > 0) {
                     var a = JSON.stringify(this.dronesServiceResponse);
@@ -379,16 +434,37 @@
                 //debugger;
                 this.issueMarkerServiceResponse = this.$.issueAjax.lastResponse;
                 // console.log('issue-marker:');
-                 console.log(this.issueMarkerServiceResponse);
+                // console.log(this.issueMarkerServiceResponse);
                 if (this.issueMarkerServiceResponse != undefined) {
                     for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
                         var elem = document.createElement("img");
                         elem.setAttribute("src", this.issueMarkerServiceResponse[i].issuePath);
                         elem.setAttribute("class", this.issueMarkerServiceResponse[i].class);
-                        if(document.getElementById(this.issueMarkerServiceResponse[i].id)!=undefined){
-                        document.getElementById(this.issueMarkerServiceResponse[i].id).appendChild(elem);    
+                        document.getElementById(this.issueMarkerServiceResponse[i].id).appendChild(elem);
+                    }
+                }
+                 for (var i = 0; i < this.dronesServiceResponse.length; i++) {
+                              inspection = this.dronesServiceResponse[i].inspection;
+                              for (var j = 0; j < inspection.length; j++) {
+                                phaseArr = inspection[j].phase;
+                                if(phaseArr){
+                                for(var k=0;k<phaseArr.length;k++){
+                                    var phaseIssueCount=0;
+                                    if(phaseArr){
+                                    var imgList=phaseArr[k].img;
+                                    for(var x=0;x<imgList.length;x++){
+                                         for(var l = 0; l < this.issueMarkerServiceResponse.length; l++){
+                                            if(this.issueMarkerServiceResponse[l].id==imgList[x].id){
+                                                phaseIssueCount++;
+                                            }
+                                        }
+                                    }
+                                }
+                                console.log(phaseArr[k].title+" , issues: "+phaseIssueCount);
+                                document.getElementById(phaseArr[k].title).innerHTML=phaseIssueCount+" issues";
+                                //
+                            }
                         }
-                        
                     }
                 }
             },
@@ -414,8 +490,7 @@
             addQuantity: function(e) {
                 //debugger;
                 var target = e.model.item.id;
-               // var id = document.querySelector('#' + target),
-               var id = document.getElementById(target);
+                var id = document.getElementById(target),
                     style = window.getComputedStyle(id),
                     border = style.getPropertyValue('border'),
                     borderNone = "0px none rgb(0, 0, 0)";
@@ -429,7 +504,8 @@
                 }
                 // console.log(this.stringify(this.dronesServiceResponse));
                 //  console.log(this.dronesServiceResponse);
-            }, ready:function(){
+            },
+            ready:function(){
                 
                      title=localStorage.getItem('assetTitle');
                      inspectorId=localStorage.getItem('inspectorId');
@@ -452,7 +528,7 @@
 
                      
             },
-            addComments:function(e){
+               addComments:function(e){
                 //debugger;
                 var inspection;
                 var phase;
@@ -530,8 +606,7 @@
                     alert('Please select image');
                 }
             },
-
-            editSubmitClick: function(e) {
+         editSubmitClick: function(e) {
                 //debugger;
                 var inspection;
                 var phase;
@@ -691,11 +766,14 @@ return;
                 debugger;
                 anno.reset();
                 // anno.destroy("http://localhost:8000/images/0002.jpg");
-                anno.removeAnnotation(this.annoArray);
+                // if(this.annoArray.length > 0){
+                //     anno.removeAnnotation(this.annoArray);
+                // }
+                this.currentId = e.model.item.id;
                 var dialog = document.querySelector('#dialog');
                 var expand = document.querySelector('#expandImg');
                 /*var altitude = document.querySelector('#imgAltitude');*/
-                expand.src = e.model.item.miniPath;
+                expand.src = e.model.item.megaPath;
                 this.megaPath=e.model.item.megaPath;
                 var div = document.getElementById("dialog-box");
                 div.style.display = "block";
@@ -711,6 +789,14 @@ return;
 
                     }
                 }
+                // for(var i=0;i<this.annoArray.length;i++){
+                //     var src = this.annoArray[i].src;
+                //     var s1 = src.substring(0,5);
+                //     var s2 = src.substring(5,src.length);
+                //     var srcNew = s1+s2;
+                //     alert(srcNew);
+                //     this.annoArray.src=srcNew; 
+                // }
                 anno.setProperties({
                     stroke: 'red',
                     stroke_width: 5,
@@ -721,18 +807,115 @@ return;
                 anno.makeAnnotatable(document.getElementById('expandImg'));
                 document.getElementById("expandImg").onload = function() {
                     //alert("The image has loaded!");
-
+                    //debugger;
                     var obj;
-                    for (var i = 0; i < a.length; i++) {
-                        obj = a[i];
+                    if (a.length > 0) {
+                        for (var i = 0; i < a.length; i++) {
+                            obj = a[i];
+                            this.annoSpanId = obj.id;
+                            localStorage.setItem("annoSpanId", this.annoSpanId);
+                            anno.addAnnotation(obj);
+                            var coordArr = [];
+                            coordArr = localStorage.getItem("coordArr");
+                            var parsed = JSON.parse(coordArr);
 
-                        anno.addAnnotation(obj);
-                        anno.addHandler('onMouseOverAnnotation', function(event) {
-                            anno.highlightAnnotation(obj);
-                        });
+                            var arr = [];
 
-                        // anno.activateSelector(a[i].src);
+                            for (var x in parsed) {
+                                arr.push(parsed[x]);
+                            }
+                            var span = document.createElement('span');
+
+                            span.id = "anno" + obj.id;
+                            span.width = 300;
+                            span.height = 300;
+                            span.style.zIndex = 8;
+                            span.style.position = "absolute";
+                            //span.style.border = "1px solid red";
+                            span.style.paddingLeft = "8px";
+                            span.style.paddingTop = "4px";
+                            span.style.color = "white";
+                            span.style.top = arr[1] + "px";
+                            span.style.left = arr[0] + "px";
+                            span.innerHTML = obj.id;
+
+                            var body = document.getElementsByClassName("annotorious-annotationlayer");
+                            body[0].appendChild(span);
+                            //initJS();
+                            // anno.addHandler('onMouseOverAnnotation', function(event) {
+                            //     anno.highlightAnnotation(obj);
+                            // });
+
+
+                            // anno.addHandler('onMouseOverItem', function(event) {
+                            //     debugger;
+                            //     var x = anno.getAvailableSelectors();
+                            //     console.log(event);
+                            //     alert('a');
+                            // });
+                            // anno.addHandler('onSelectionStarted', function(event) {
+                            //     alert('anno updated');
+                            //     console.log(anno);
+                            // });
+
+                            // anno.activateSelector(a[i].src);
+                        }
                     }
+                    anno.addHandler('beforeAnnotationRemoved', function(event) {
+                        if (localStorage.getItem("deleteCount") == "1") {
+                            // debugger;
+                            // alert('vish');
+                            console.log(event);
+                            var x = anno.getAnnotations();
+                            // var id = null;
+                            // for (var i = 0; i < x.length; i++) {
+                            //     if (x[i].text == event.text) {
+                            //         id = x[i].text;
+                            //         break;
+                            //     }
+                            // }
+                            var id = event.id;
+                            var span = document.getElementById("anno" + id);
+                            span.parentNode.removeChild(span);
+                            localStorage.setItem("deleteCount", "0");
+                        }
+                    });
+                    anno.addHandler('onAnnotationCreated', function(event) {
+                        if (localStorage.getItem("saveCount") == "1") {
+                            //alert('vish');
+                            debugger;
+
+                            var spanId = Number(localStorage.getItem("annoSpanId")) + 1;
+                            localStorage.setItem("annoSpanId", spanId);
+                            var x = anno.getAnnotations();
+                            var sc = localStorage.getItem("sc");
+                            var parsed = JSON.parse(sc);
+
+                            var arr = [];
+
+                            for (var x in parsed) {
+                                arr.push(parsed[x]);
+                            }
+                            var span = document.createElement('span');
+
+                            span.id = "anno" + spanId;
+                            span.width = 300;
+                            span.height = 300;
+                            span.style.zIndex = 8;
+                            span.style.position = "absolute";
+                            //span.style.border = "1px solid red";
+                            span.style.paddingLeft = "8px";
+                            span.style.paddingTop = "4px";
+                            span.style.color = "white";
+                            span.style.top = arr[2] + "px";
+                            span.style.left = arr[1] + "px";
+                            span.innerHTML = spanId;
+
+                            var body = document.getElementsByClassName("annotorious-annotationlayer");
+                            body[0].appendChild(span);
+                            localStorage.setItem("saveCount", "0");
+                        }
+                    });
 
 
                     //anno.showAnnotations(document.getElementById('expandImg'));
@@ -761,10 +944,10 @@ return;
                 for (var i = 0; i < this.annoArray.length; i++) {
                     anno.removeAnnotation(this.annoArray[i]);
                 }
+                // anno.destroy();
 
             },
             saveDialog: function(e) {
-                
                 var id=this.megaPath;
                                
                 var div = document.getElementById("dialog-box");
@@ -802,17 +985,20 @@ return;
                 //this.$.AjaxPost.body = {"id":"/Polymer/images/0001.jpg"};
                 this.$.AjaxPost.generateRequest();
 
+                var div = document.getElementById("dialog-box");
                 div.style.display = "none";
                 var obj = {
                     "id": e.model.item.id,
                     "annotation": anno.getAnnotations()
                 };
                 //anno.destroy(document.getElementById('expandImg'));
-                 for(var i=0;i<this.annoArray.length;i++){
-                     anno.removeAnnotation(this.annoArray[i]);
+                for (var i = 0; i < this.annoArray.length; i++) {
+                    anno.removeAnnotation(this.annoArray[i]);
                 }
-
-              
+                var img = document.getElementById("expandImg");
+                img.style.width = 0 + "px";
+                img.style.height = 0 + "px";
+                //  anno.destroy();
             },
             toggleDialogEdit: function(e) {
                 var dialog = document.querySelector('#editDialog');
@@ -823,26 +1009,24 @@ return;
                 dialog.toggle();
             },
             onEnter: function(e) {
-            debugger;
-            console.log('v');
-            console.log(this.target);
-              console.log(this.userInput);
-              this.target = null;
-              this.targetComment = null;
-              this.target = document.querySelector('#input');
-              
+                debugger;
+                console.log('v');
+                console.log(this.target);
+                console.log(this.userInput);
+                this.target = null;
+                this.targetComment = null;
+                this.target = document.querySelector('#input');
+
                 var requirement = null;
                 var id = null;
                 id = e.model.item.id;
                 for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
-                    if(id == this.issueMarkerServiceResponse[i].id){
-                    
-                    requirement = this.userInput;
-                    document.querySelector('#requirementMsg').innerHTML = requirement;
-                    break;
-                    }
-                    else
-                    {
+                    if (id == this.issueMarkerServiceResponse[i].id) {
+
+                        requirement = this.userInput;
+                        document.querySelector('#requirementMsg').innerHTML = requirement;
+                        break;
+                    } else {
                         requirement = "";
                         document.querySelector('#requirementMsg').innerHTML = requirement;
 
@@ -851,6 +1035,7 @@ return;
             },
             onEnterComment: function(e) {
                 debugger;
+                console.log(this.userInput);
                 console.log(this.userInputComment);
                 var d = new Date();
                 var month = d.getMonth() + 1;
@@ -866,19 +1051,24 @@ return;
                 var comments = null;
                 var commentArray = [];
                 var id = null;
-                id = e.model.item.id;
+                id = this.currentId;
                 for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
-                if(id == this.issueMarkerServiceResponse[i].id){
-                    comments = this.userInputComment;
-                    commentArray.push(comments);
-                    var count = commentArray.length;
-                    for(var i=0; i < count; i++){
-                        console.log(commentArray[i]);
-                        document.querySelector('#appendDate').append(CurrentDate);
-                        document.querySelector('#appendMsg').append(commentArray[i]);
-                    }
-                    
+                    if (id == this.issueMarkerServiceResponse[i].id) {
+                        if (this.target != null) {
+                            comments = this.userInput;
+                        } else {
+                            comments = this.userInputComment;
+                        }
+                       // comments = this.userInputComment;
+                        commentArray.push(comments);
+                        var count = commentArray.length;
+                        for (var i = 0; i < count; i++) {
 
+                            console.log(commentArray[i]);
+                            $('#appendMsg').find('.issue-date').append('<div class="date">' + CurrentDate + '</div>').append('<div class="comments">' + commentArray[i] + '</div>');
+                            /*document.getElementById('appendDate').append(CurrentDate);
+                            document.querySelector('#appendMsg').append(commentArray[i]);*/
+                        }
                         break;
                     } else {
 
@@ -892,7 +1082,7 @@ return;
                 return JSON.stringify(obj);
             },
             zoomOut: function() {
-                debugger;
+                //debugger;
                 var zm = 0.9;
                 var zoomLevel = 100;
                 var maxZoomLevel = 105;
@@ -911,7 +1101,7 @@ return;
                 // img.style.marginTop = -(img.height / 2) + "px";
             },
             zoomIn: function() {
-                debugger;
+                //debugger;
                 var zm = 1.1;
                 var zoomLevel = 100;
                 var maxZoomLevel = 105;
@@ -931,14 +1121,16 @@ return;
                 // img.style.marginLeft = -(img.width / 2) + "px";
                 // img.style.marginTop = -(img.height / 2) + "px";
             },
-            /*setTarget: function(){
-                this.target = document.querySelector('#input');
+            setTarget: function() {
+                // alert('inside set target');
+                this.target = document.getElementById('input');
                 this.targetComment = null;
             },
-            setTargetComment: function(){
+            setTargetComment: function() {
+                //alert('inside set target comment');
                 this.target = null;
                 this.targetComment = document.querySelector('#inputComment');
-            },*/
+            },
             urlState: function(urlPath) {
                 //debugger;
                 window.history.pushState('', '', urlPath);
@@ -949,7 +1141,100 @@ return;
                         message: ''
                     }
                 }));
-            }
+            },
+            toggleDescr: function(e) {
+                //debugger;
+                var description = document.querySelector('#collapse');
+                description.toggle();
+                var alt = [];
+                var title = [];
+                var img = [];
+                var meta = [];
+                phaseArr = null;
+                var id = null;
+                id = e.model.item.id;
+                a = this.dronesServiceResponse;
+                for (var i = 0; i < this.dronesServiceResponse.length; i++) {
+                    /*if(id == this.dronesServiceResponse[i].id){*/
+                    inspection = null;
+                    inspectionArr = null;
+                    phase = null;
+                    metadata = [];
+                    inspection = this.dronesServiceResponse[i].inspection;
+                    for (var j = 0; j < inspection.length; j++) {
+                        inspectionArr = inspection[j].phase;
+                        //  phase.push(inspection[j].phase);
+
+
+                        for (var k = 0; k < inspectionArr.length; k++) {
+                            phase = inspectionArr[k].img;
+                            for (var b = 0; b < phase.length; b++) {
+                                // img.push(phase[b]);
+                                metadata = phase[b].metadata;
+                                //var title = metadata[b].title;
+                                for (var x = 0; x < metadata.length; x++) {
+                                    title.push(metadata[x])
+                                        /*title = metadata[x].title;
+                                        alt = metadata[x].value; */
+                                }
+                            }
+
+                        }
+                    }
+                    /*}*/
+                }
+            },
+            _itemSelected: function(e) {
+                //debugger;
+                var alt = [];
+                var img = [];
+                var meta = [];
+                phaseArr = null;
+                a = this.dronesServiceResponse;
+                var selectedItem = e.target.selectedItem;
+                if (selectedItem.innerText == "Altitude") {
+                    for (var i = 0; i < this.dronesServiceResponse.length; i++) {
+                        inspection = null;
+                        inspectionArr = null;
+                        phase = null;
+                        metadata = [];
+                        inspection = this.dronesServiceResponse[i].inspection;
+                        for (var j = 0; j < inspection.length; j++) {
+                            inspectionArr = inspection[j].phase;
+                            //  phase.push(inspection[j].phase);
+
+
+                            for (var k = 0; k < inspectionArr.length; k++) {
+                                phase = inspectionArr[k].img;
+                                for (var b = 0; b < phase.length; b++) {
+                                    // img.push(phase[b]);
+                                    metadata = phase[b].metadata;
+                                    //var title = metadata[b].title;
+                                    for (var x = 0; x < metadata.length; x++) {
+                                        alt = metadata[x].value;
+
+                                        this._valueSelected(e);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                } else if (selectedItem.innerText == "Latitude & Longitutde") {
+                    console.log('hi');
+                }
+            },
+            _valueSelected: function(e) {
+                // debugger;
+                var selectedItem = e.target.selectedItem;
+                if (selectedItem.innerText == 0 - 40) {
+                    alert('hi');
+                } else if (selectedItem.innerText == 40 - 80) {
+                    alert('heys');
+                }
+            },
+
+
         });
     })();
     function getStatusName(statusId){

@@ -1,5 +1,5 @@
 <!-- Polymer web component used to display the assets list -->
-<link rel="import" href="..\..\bower_components/polymer/polymer.html">
+<link rel="import" href="/Polymer/bower_components/polymer/polymer.html">
 <dom-module id="my-drone">
     <template is="dom-bind">
         <style>
@@ -8,7 +8,7 @@
         }
         
         .zoom-slider {
-            width: 98%;
+            width: 100%;
             text-align: right;
             margin-bottom: 30px;
         }
@@ -35,13 +35,13 @@
 
        
 <div class="headin">
-       <div class="drop-left" style="width: 22%;  float: left; text-align: center;">
+       <div calss="drop-left" style="width: 21%;  float: left; text-align: center;">
        <select style="padding: 6px;font-size: 20px;border: none;">
          <option>Port Arthur, TX – Martinez</option>
         
        </select>
        </div>
-         <div class="drop-right" style="width: 78%;  float: right; text-align: center;">
+         <div calss="drop-left" style="width: 79%;  float: right; text-align: center;">
        <select style="padding: 6px;font-size: 20px;border: none;">
          <option>Inspection</option>
         
@@ -102,10 +102,11 @@
                                 <!--  <paper-icon-button icon="menu" class="list-view"></paper-icon-button>
                                 <paper-icon-button icon="camera-enhance" class="camera-view" on-click="cameraViewSelected" id="cameraView"></paper-icon-button>
                                   <paper-icon-button icon="invert-colors" class="invert-color-view" on-click="invertColorSelected" id="invertColor"></paper-icon-button> -->
+                        
                                 <div class="zoom-slider">
                                     <span class="zoomTitle">Zoom</span>
                                     <span><input type="button" value="-" id="button" name="decrementButton" on-click="zoomOut"></span>
-                                    <span><input type="range" id="range" value="0" min="0" max="4" onchange="changeZoom(this.value)" style="margin-top: 10px"></span>
+                                    <span><input type="range" id="range" value="0" min="0" max="4"></span>
                                     <span><input type="button" value="+" id="button" name="incrementButton" on-click="zoomIn"></span>
                                 </div>
                             </paper-toolbar>
@@ -115,7 +116,7 @@
                         </div>
                         <div>
                             <app-router>
-                                <app-route path="/my-issues" import="/Polymer/elements/my-issues/my-issues.html"></app-route>
+                                 <app-route path="/my-issues" import="/Polymer/elements/my-issues/my-issues.html"></app-route>
                             </app-router>
                             <!-- <my-issues></my-issues> -->
                         </div>
@@ -152,7 +153,21 @@
                 },
                 url: {
                     type: String,
-                    value: '/drones.json'
+                    value: '/Polymer/drones.json'
+                },
+                phase: {
+                    type: Array,
+                    notify: true,
+                    value: function() {
+                        return [];
+                    }
+                },
+                metadata: {
+                    type: Array,
+                    notify: true,
+                    value: function() {
+                        return [];
+                    }
                 }
 
             },
@@ -197,13 +212,13 @@
                     this.path = '/' + this.path;
                     this.urlState(this.path);
                 }
-                if(localStorage.getItem('assetTitle')==null){
+                 if(localStorage.getItem('assetTitle')==null){
                 if(this.dronesServiceResponse[0]!=undefined && this.dronesServiceResponse[0]!='undefined'){
                 localStorage.setItem('assetTitle',this.dronesServiceResponse[0].title );
                } 
               }
             },
-            handleAssetsClick: function(e) {
+           handleAssetsClick: function(e) {
                 var id = e.model.item.id;
                 var title=e.model.item.title;
                 //alert(id);
@@ -287,11 +302,12 @@
             },
             ready: function() {
                 var xx=document.getElementById("basic1");
-                xx.style.display="none"
+     xx.style.display="none"
                 localStorage.setItem('assetId', "0");
+                 localStorage.setItem('assetId', "0");
                 inspectorId=localStorage.getItem('inspectorId');
                  
-                 this.url = "/ir-0.0.1/inspection/getAsset/inspectorId="+inspectorId;    
+                 this.url = "/ir-0.0.1/inspection/getAsset/inspectorId="+inspectorId;   
             },
             urlState: function(urlPath) {
                 //  debugger;

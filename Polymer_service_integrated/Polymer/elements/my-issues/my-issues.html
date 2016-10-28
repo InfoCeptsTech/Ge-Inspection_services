@@ -66,8 +66,8 @@
                                 </paper-icon-button>
                                 <paper-tooltip for="img-tooltip-{{index}}">{{item.tooltip}}</paper-tooltip>
                                 <span style="width: 100%">
-                            <paper-dropdown-menu  on-selected-item-label-changed="_change" >
-                                <paper-listbox class="dropdown-content" selected="0" attr-for-selected="value" selected="0">
+                            <paper-dropdown-menu>
+                                <paper-listbox class="dropdown-content" selected="0">
                                     <paper-item>Fix</paper-item>
                                     <paper-item>Continue to monitor</paper-item>
                                     <paper-item>Manual Inspection</paper-item>
@@ -75,8 +75,18 @@
                             </paper-dropdown-menu>
                             </span>
                             </div>
-                            <paper-dialog heading="" id="dialogIssue" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-                                <img src="{{item.megaPath}}" id="expandImgIssue">
+                            <paper-dialog heading="" id="dialogIssue"  style="height: 50%;
+    outline: none;
+    z-index: 103;
+    position: fixed;
+    top: 67.8047px;
+    left: 350px;
+    box-sizing: border-box;
+    max-height: 870px;
+    max-width: 1200px;
+    padding: 0px 20px;
+    width: 50%;" entry-animation=" scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+                                <img src="{{item.megaPath}}" id="expandImgIssue" style="width:100%">
                                 <div class="modal-footer ">
                                     <paper-button dialog-dismiss class="btn-default">Close</paper-button>
                                 </div>
@@ -129,7 +139,7 @@
                     notify: true
                 }
             },
-             _change:function(e){
+            _change:function(e){
                  this.megapath=e.model.item.megaPath;
                 if(e.detail.value.length>0){
                  console.log("-->"+e.model.item.megaPath+"<--");
@@ -146,7 +156,7 @@
 
                 }
  
-            },  
+            }, 
              _handleAjaxPostResponse:function(){
                                
              console.log("success");

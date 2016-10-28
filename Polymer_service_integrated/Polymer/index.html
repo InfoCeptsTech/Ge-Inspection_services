@@ -10,6 +10,7 @@
   <title>GE Inspection</title>
 
   <!-- endbuild-->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
   <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
   <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
@@ -30,25 +31,37 @@ body{background:#636363;width:100%;}
 paper-drawer-panel{
  background: #656262!important;
 }
-  </style>
+ .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+   /* background: url('/Polymer/images/Preloader_2.gif') 50% 50% no-repeat rgb(249,249,249);*/
+    background: url('/Polymer/images/load.gif') 50% 50% no-repeat #fff;
+}
+</style>
 
 </head>
 
 <body unresolved>
-  <!-- build:remove -->
-  
-  <span id="browser-sync-binding"></span>
-  <!-- endbuild -->
-
-  <template is="dom-bind" id="app">
-
-  <!--<my-drone></my-drone>-->
+   <span id="browser-sync-binding"></span>
+      <div class="loader"></div>
+   <template is="dom-bind" id="app">
    <dash-login></dash-login>
-  <app-router>
-   <app-route path="/my-drone" import="/Polymer/elements/my-drone/my-drone.html"></app-route>
-  </app-router>
+   <app-router>
+       <app-route path="/my-drone" import="/Polymer/elements/my-drone/my-drone.html"></app-route>
+   </app-router>
+   </template>
 
-  </template>
 </body>
+
+<script type="text/javascript">
+$(window).load(function() {
+    $(".loader").fadeOut("slow");
+})
+</script>
+
 
 </html>
