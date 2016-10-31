@@ -7,7 +7,7 @@
             display: block;
         }
         </style>
-         <iron-ajax id="ajaxAssetDate"
+        <iron-ajax id="ajaxAssetDate"
             url="/ir-0.0.1/inspection/getMediaDate/inspectorId=1&assetId="
             handle-as="json"
             on-response="handleResponse"
@@ -68,7 +68,8 @@
                 }
             },
 
-            handleResponse: function() {
+           
+             handleResponse: function() {
                 
                 console.log(this.dronesServiceResponse);
                 debugger;

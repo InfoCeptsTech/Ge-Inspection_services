@@ -2,9 +2,8 @@
 <link rel="import" href="/Polymer/bower_components/polymer/polymer.html">
 <link type="text/css" rel="stylesheet" href="/Polymer/elements/annotorious-bower/css/annotorious-dark.css" />
 <script type="text/javascript" src="/Polymer/elements/annotorious-bower/annotorious.min.js"></script>
-
 <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <dom-module id="my-media">
     <template>
         <style>
@@ -89,19 +88,20 @@
             on-error="_handleAjaxPostError"
             >
         </iron-ajax>
-        <drones-data-service id="ajax" url="{{url}}" drones-service-response="{{droneServiceResponse}}" >
+       <drones-data-service id="ajax" url="{{url}}" drones-service-response="{{droneServiceResponse}}" >
         </drones-data-service>
         <iron-ajax id="issueAjax" url="{{markerurl}}" handle-as="json" on-response="handleResponseIssueMarker"></iron-ajax>
         <!-- <iron-ajax auto id="annotoriousAjax" url="/Polymer/annotorious.json" handle-as="json" on-response="handleResponseAnnotorious"></iron-ajax> -->
         <div class="filters">
             <paper-dropdown-menu id="filters" on-iron-select="_itemSelected" label="Filter By:">
-                <paper-listbox class="dropdown-content">
+                <paper-listbox class="dropdown-content" selected="0">
                     <paper-item>Altitude</paper-item>
                     <!--  <paper-item>Latitude &amp; Longitutde</paper-item> -->
                 </paper-listbox>
             </paper-dropdown-menu>
             <paper-dropdown-menu id="filtersValue" on-iron-select="_valueSelected">
                 <paper-listbox class="dropdown-content" selected="0">
+                    <paper-item>All</paper-item>
                     <paper-item>0-40</paper-item>
                     <paper-item>40-80</paper-item>
                 </paper-listbox>
@@ -117,7 +117,7 @@
                             <div class="modal-body">
                                 <template is="dom-repeat" items="{{item.img}}">
                                     <div class="abc" id="abc">
-                                        <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="data:image/jpg;base64,{{item.imgBinary}}" class="phases-img" id="{{item.id}}">
+                                        <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="{{item.megaPath}}" class="phases-img" id="{{item.id}}">
                                             <!--  <img id="{{item.id}}" on-tap="addQuantity" raised class="phases-img" src="{{item.src}}"> -->
                                         </paper-icon-button>
                                         <!--  <img class$="{{item.class}}" src="{{item.issuePath}}"> -->
@@ -128,14 +128,14 @@
                     </div>
                     </template>
         </div>
-        <paper-dialog heading="" id="editDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+        <paper-dialog heading="" id="editDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop style="padding:10px;">
             <div>
                 <span>
                                 Defect Type:
                                 <br/>
                             </span>
                 <span>
-                                 <paper-dropdown-menu >
+                                 <paper-dropdown-menu>
                                 <paper-listbox class="dropdown-content" id="defectType" selected="0">
                                     <paper-item>Corrosion</paper-item>
                                     <paper-item>Thinning</paper-item>
@@ -152,7 +152,7 @@
                                 <br/>
                             </span>
                 <span>
-                                  <paper-dropdown-menu >
+                                  <paper-dropdown-menu>
                                 <paper-listbox class="dropdown-content" id="statusType" selected="0">
                                     <paper-item>Fix</paper-item>
                                     <paper-item>Continue to monitor</paper-item>
@@ -168,7 +168,7 @@
         </paper-dialog>
         <paper-dialog heading="" id="commentDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
             <span>Enter Comments Here:</span>
-            <paper-textarea label="" id="inputComment"></paper-textarea>
+            <paper-textarea label="" id="textarea"></paper-textarea>
             <div class="modal-footer">
                 <paper-button dialog-dismiss class="submit">Submit</paper-button>
                 <paper-button dialog-dismiss class="close">Close</paper-button>
@@ -194,8 +194,9 @@
                     </div>
                     <div class="img-metadata flexchild">
                         <!-- <h3> Altitude </h3>
-                                                    <span id="imgAltitude"> 42.026914</span>
+                                                <span id="imgAltitude"> 42.026914</span>
                                                     <hr> -->
+                                                    <div class="metadataSet">
                         <div class="defectDrop">
                             <span>Defect Type:</span>
                             <paper-dropdown-menu>
@@ -216,15 +217,13 @@
                                 </paper-listbox>
                             </paper-dropdown-menu>
                             <br/>
-                            <span id="imageDetail"><iron-icon icon="add" on-click="_onClick" class="addBtn"></iron-icon>Image Detail</span>
-                            <iron-collapse style="width:219px">
+                            <span id="imageDetail"><iron-icon  id="iron-icon" icon="add" on-click="_onClick" class="addBtn"></iron-icon>Image Detail</span>
+                            <iron-collapse style="width:219px" id="collapse">
                                 <div class="deco-collpase">
                                     <div class="Imgtitle">Altitude</div>
                                     <div class="ImgValue">87.5465</div>
-                                    <!--
                                     <div class="Imgtitle">Latitude &amp; Longitude</div>
                                     <div class="ImgValue">(3.414725, -122.167969)</div>
-                                    -->
                                 </div>
                             </iron-collapse>
                             </paper-dropdown-menu>
@@ -237,20 +236,24 @@
                           <div class="ImgValue">(3.414725, -122.167969)</div>
                                                           </div>
                                                         </iron-collapse> -->
-                           <span>Inspection Requirement :</span>
+                            <span>Inspection Requirement :</span>
                             <div id="appendMsg" class="hii">
                                 <div class="issue-date" id="issue-date">
                                 </div>
                             </div>
-                            <iron-a11y-keys id="a11y" target="[[target]]" keys="enter" on-keys-pressed="onEnter"></iron-a11y-keys>
-                            <paper-input id="input" placeholder="Enter inspection requirements here" value="{{userInput::input}}" on-focus="setTarget"></paper-input>
+                            <!--  <iron-a11y-keys id="a11y" target="[[target]]" keys="enter" on-keys-pressed="onEnter"></iron-a11y-keys> -->
+                            <paper-input id="inputReq" placeholder="Enter inspection requirements here" value="{{userInput::input}}" on-focus="setTarget" on-keydown="onEnterComment"></paper-input>
                             <div id="requirementMsg"></div>
                             <!-- <input type="text" id="requirementSection" on-tap="submitRequirement"> -->
                             <!-- <paper-button class="submit addComment">Add</paper-button> -->
                             <hr class="divider">
                             <span>Inspection Findings :</span>
-                            <iron-a11y-keys id="a11z" target="[[targetComment]]" keys="enter" on-keys-pressed="onEnterComment"></iron-a11y-keys>
-                            <paper-input id="inputComment" placeholder="Enter inspection findings" value="{{userInputComment::input}}" on-focus="setTargetComment"></paper-input>
+                            <div id="appendMsgInspectionFinding" class="hii">
+                                <div class="issue-date" id="issue-date">
+                                </div>
+                            </div>
+                            <!-- <iron-a11y-keys id="a11z" target="[[targetComment]]" keys="enter" on-keys-pressed="onEnterComment"></iron-a11y-keys> -->
+                            <paper-input id="inputComment" placeholder="Enter inspection findings" value="{{userInputComment::input}}" on-focus="setTargetComment" on-keydown="onEnterComment"></paper-input>
                             <!--  <input type="text" id="commentSection">
                                                         <paper-textarea label="" id="commentSection"></paper-textarea>
                                                         <paper-button class="submit addComment" on-click="submitComment">Add</paper-button> -->
@@ -258,6 +261,7 @@
                         <div class="editCropSection">
                             <paper-icon-button src="/Polymer/images/zoomout_rest.png" on-click="zoomOut"></paper-icon-button>
                             <paper-icon-button src="/Polymer/images/zoomin_rest.png" on-click="zoomIn"></paper-icon-button>
+                        </div>
                         </div>
                         <!-- <div class="editCropSection">
                                                         <iron-icon icon="icons:flip-to-back"></iron-icon>
@@ -320,7 +324,7 @@
                     type: Array,
                     value: []
                 },
-                megaPath:{
+                  megaPath:{
                     type:String,
                     value:''
                 },
@@ -383,7 +387,7 @@
                 target: {
                     type: Object,
                     value: function() {
-                        return document.querySelector('#input');
+                        return document.querySelector('#inputReq');
                     }
                 },
                 userInputComment: {
@@ -394,11 +398,12 @@
                     type: Object,
                     value: function() {
                         return document.querySelector('#inputComment');
-                    },
-                    annoSpanId: {
-                        type: Number,
-                        value: 0
                     }
+
+                },
+                annoSpanId: {
+                    type: Number,
+                    value: 0
                 },
                 currentId: {
                     type: String,
@@ -407,10 +412,14 @@
                 commentArray: {
                     type: Array,
                     value: []
+                },
+                commentArrayInspectionFinding: {
+                    type: Array,
+                    value: []
                 }
 
             },
-             ready: function(){
+            ready: function(){
                //  alert(" in ready-----------");
                      title=localStorage.getItem('assetTitle');
                      inspectorId=localStorage.getItem('inspectorId');
@@ -434,8 +443,8 @@
                      
             },
             _onClick: function() {
-                var button = this.querySelector('iron-icon'),
-                    collapse = this.querySelector('iron-collapse')
+                var button = document.getElementById('iron-icon'),
+                    collapse = document.getElementById('collapse')
                 collapse.toggle()
                 if (collapse.opened) {
                     Polymer.dom(button).setAttribute('icon', 'remove')
@@ -444,7 +453,8 @@
                 }
             },
             _hideShow: function() {
-                document.getElementById("appendMsg").style.height = "auto";
+                //document.getElementById("appendMsg").style.height = "auto";
+                //document.getElementById("appendMsgInspectionFinding").style.height = "auto";
             },
             handleResponse: function() {
                 // debugger;
@@ -557,8 +567,7 @@ for (var i = 0; i < this.dronesServiceResponse.length; i++) {
                 // console.log(this.stringify(this.dronesServiceResponse));
                 //  console.log(this.dronesServiceResponse);
             },
-            
-            addComments:function(e){
+              addComments:function(e){
                 //debugger;
                 var inspection;
                 var phase;
@@ -800,7 +809,7 @@ return;
                 //     anno.removeAnnotation(this.annoArray);
                 // }
                 this.currentId = e.model.item.id;
-                this.megaPath=e.model.item.megaPath;
+                 this.megaPath=e.model.item.megaPath;
                 var dialog = document.querySelector('#dialog');
                 var expand = document.querySelector('#expandImg');
                 /*var altitude = document.querySelector('#imgAltitude');*/
@@ -808,11 +817,13 @@ return;
                 var div = document.getElementById("dialog-box");
                 div.style.display = "block";
                 this.annoArray = [];
+                var polymerThis = this;
                 //var annotationsArray = [];
                 for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
                     if (e.model.item.id == this.issueMarkerServiceResponse[i].id) {
                         //annotationsArray = this.annotoriousResponse[i].annotation;
                         this.commentArray = this.issueMarkerServiceResponse[i].comments;
+                        this.commentArrayInspectionFinding = this.issueMarkerServiceResponse[i].description;
                         this.annoArray = this.issueMarkerServiceResponse[i].annotation;
                         expand.style.width = this.issueMarkerServiceResponse[i].width + "px";
                         expand.style.height = this.issueMarkerServiceResponse[i].height + "px";
@@ -838,6 +849,25 @@ return;
                     aDiv.appendChild(mainDiv);
 
                 }
+                for (var i = 0; i < this.commentArrayInspectionFinding.length; i++) {
+                    var CurrentDate = this.commentArrayInspectionFinding[i].date;
+                    var message = this.commentArrayInspectionFinding[i].message;
+                    //console.log(commentArray[i]);
+                    var mainDiv = document.createElement('div');
+                    //mainDiv.id="main"+i;
+                    var dateDiv = document.createElement('div');
+                    dateDiv.class = "date";
+                    dateDiv.innerHTML = CurrentDate;
+                    var commentDiv = document.createElement('div');
+                    commentDiv.class = "comments";
+                    commentDiv.innerHTML = message;
+                    mainDiv.appendChild(dateDiv);
+                    mainDiv.appendChild(commentDiv);
+                    var aDiv = document.getElementById('appendMsgInspectionFinding');
+                    aDiv.appendChild(mainDiv);
+
+                }
+
                 // for(var i=0;i<this.annoArray.length;i++){
                 //     var src = this.annoArray[i].src;
                 //     var s1 = src.substring(0,5);
@@ -929,6 +959,7 @@ return;
                             localStorage.setItem("deleteCount", "0");
                         }
                     });
+
                     anno.addHandler('onAnnotationCreated', function(event) {
                         if (localStorage.getItem("saveCount") == "1") {
                             //alert('vish');
@@ -962,7 +993,53 @@ return;
 
                             var body = document.getElementsByClassName("annotorious-annotationlayer");
                             body[0].appendChild(span);
+
+
+                            this.target = null;
+                            this.targetComment = document.querySelector('#inputComment');
+                            var myNodeInspectionFinding = document.getElementById("appendMsgInspectionFinding");
+                            while (myNodeInspectionFinding.firstChild) {
+                                myNodeInspectionFinding.removeChild(myNodeInspectionFinding.firstChild);
+                            }
+                            var d = new Date();
+                            var month = d.getMonth() + 1;
+                            var day = d.getDate();
+
+                            var output = (('' + day).length < 2 ? '0' : '') + day + '/' +
+                                (('' + month).length < 2 ? '0' : '') + month + '/' +
+                                d.getFullYear();
+                                debugger;
+                            var CurrentDate = output;
+                            var comments = event.text;
+                            var obj = {
+                                "date": CurrentDate,
+                                "message": comments
+                            }
+                            polymerThis.commentArrayInspectionFinding.push(obj);
+                            var myNodeInspectionFinding = document.getElementById("appendMsgInspectionFinding");
+                            while (myNodeInspectionFinding.firstChild) {
+                                myNodeInspectionFinding.removeChild(myNodeInspectionFinding.firstChild);
+                            }
+                            var count = polymerThis.commentArrayInspectionFinding.length;
+                            for (var i = 0; i < count; i++) {
+                                debugger;
+                                console.log(polymerThis.commentArrayInspectionFinding[i]);
+                                var mainDivInspectionFinding = document.createElement('div');
+                                //mainDiv.id="main"+i;
+                                var dateDivInspectionFinding = document.createElement('div');
+                                dateDivInspectionFinding.class = "date";
+                                dateDivInspectionFinding.innerHTML = polymerThis.commentArrayInspectionFinding[i].date;
+                                var commentDivInspectionFinding = document.createElement('div');
+                                commentDivInspectionFinding.class = "comments";
+                                commentDivInspectionFinding.innerHTML = polymerThis.commentArrayInspectionFinding[i].message;
+                                mainDivInspectionFinding.appendChild(dateDivInspectionFinding);
+                                mainDivInspectionFinding.appendChild(commentDivInspectionFinding);
+                                var aDivInspectionFinding = document.getElementById('appendMsgInspectionFinding');
+                                aDivInspectionFinding.appendChild(mainDivInspectionFinding);
+                            }
                             localStorage.setItem("saveCount", "0");
+
+
                         }
                     });
 
@@ -990,18 +1067,34 @@ return;
                 div.style.display = "none";
                 //anno.makeAnnotatable(document.getElementById('expandImg'));
                 //anno.destroy(document.getElementById('expandImg'));
+                 if(this.annoArray.length>0){
                 for (var i = 0; i < this.annoArray.length; i++) {
                     anno.removeAnnotation(this.annoArray[i]);
                 }
-                for(var i=0;i<this.commentArray.length;i++){
-                   document.getElementById('appendMsg').innerHTML = "";
-                }
+            }
+                // for (var i = 0; i < this.commentArray.length; i++) {
+                //     document.getElementById('appendMsg').innerHTML = "";
+                // }
+                debugger;
+                //document.getElementById('appendMsg').innerHTML = "";
                 this.commentArray = [];
-                //$('#appendMsg').empty();
-                // anno.destroy();
+                this.commentArrayInspectionFinding = [];
+                var myNode = document.getElementById("appendMsg");
+                while (myNode.firstChild) {
+                    myNode.removeChild(myNode.firstChild);
+                }
+                var myNodeInspectionFinding = document.getElementById("appendMsgInspectionFinding");
+                while (myNodeInspectionFinding.firstChild) {
+                    myNodeInspectionFinding.removeChild(myNodeInspectionFinding.firstChild);
+                }
+                document.getElementById('appendMsg').innerHTML = "";
+                document.getElementById('appendMsgInspectionFinding').innerHTML = "";
+                document.getElementById('inputReq').value = "";
+                document.getElementById('inputComment').value = "";
 
             },
             saveDialog: function(e) {
+
                 var el=document.getElementById('expandImg');
 
                 var viewportOffset = el.getBoundingClientRect();
@@ -1061,23 +1154,43 @@ return;
                 //this.$.AjaxPost.body = {"id":"/Polymer/images/0001.jpg"};
                 this.$.AjaxPost.generateRequest();
               
+               /*
+                var div = document.getElementById("dialog-box");
+                div.style.display = "none";
+                */
                 var obj = {
-                    "id": e.model.item.id,
+                    "id": this.currentId,
                     "annotation": anno.getAnnotations()
                 };
                 //anno.destroy(document.getElementById('expandImg'));
+                if(this.annoArray.length>0){
                 for (var i = 0; i < this.annoArray.length; i++) {
                     anno.removeAnnotation(this.annoArray[i]);
+                }
                 }
                 var img = document.getElementById("expandImg");
                 img.style.width = 0 + "px";
                 img.style.height = 0 + "px";
-                 for(var i=0;i<this.commentArray.length;i++){
-                   document.getElementById('appendMsg').innerHTML = "";
-                }
+                //document.getElementById('appendMsg').innerHTML = "";
+                // for (var i = 0; i < this.commentArray.length; i++) {
+                //     document.getElementById('appendMsg').innerHTML = "";
+                // }
+
                 this.commentArray = [];
-                //$('#appendMsg').empty();
-                //  anno.destroy();
+                this.commentArrayInspectionFinding = [];
+                var myNode = document.getElementById("appendMsg");
+                while (myNode.firstChild) {
+                    myNode.removeChild(myNode.firstChild);
+                }
+                var myNodeInspectionFinding = document.getElementById("appendMsgInspectionFinding");
+                while (myNodeInspectionFinding.firstChild) {
+                    myNodeInspectionFinding.removeChild(myNodeInspectionFinding.firstChild);
+                }
+                document.getElementById('appendMsg').innerHTML = "";
+                document.getElementById('appendMsgInspectionFinding').innerHTML = "";
+                document.getElementById('inputReq').value = "";
+                document.getElementById('inputComment').value = "";
+
             },
             toggleDialogEdit: function(e) {
                 var dialog = document.querySelector('#editDialog');
@@ -1087,103 +1200,125 @@ return;
                 var dialog = document.querySelector('#commentDialog');
                 dialog.toggle();
             },
-            onEnter: function(e) {
-                debugger;
-                console.log('v');
-                console.log(this.target);
-                console.log(this.userInput);
-                this.target = null;
-                this.targetComment = null;
-                this.target = document.querySelector('#input');
+            // onEnter: function(e) {
+            //     debugger;
+            //     if (e.keyCode === 13) {
+            //         // enter pressed!
+            //         alert('enter pressed');
+            //     }
+            //     alert('v');
+            //     console.log(this.target);
+            //     console.log(this.userInput);
+            //     this.target = null;
+            //     this.targetComment = null;
+            //     this.target = document.querySelector('#input');
 
-                var requirement = null;
-                var id = null;
-                id = e.model.item.id;
-                for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
-                    if (id == this.issueMarkerServiceResponse[i].id) {
+            // var requirement = null;
+            // var id = null;
+            // id = e.model.item.id;
+            // for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
+            //     if (id == this.issueMarkerServiceResponse[i].id) {
 
-                        requirement = this.userInput;
-                        document.querySelector('#requirementMsg').innerHTML = requirement;
-                        break;
-                    } else {
-                        requirement = "";
-                        document.querySelector('#requirementMsg').innerHTML = requirement;
+            //         requirement = this.userInput;
+            //         document.querySelector('#requirementMsg').innerHTML = requirement;
+            //         break;
+            //     } else {
+            //         requirement = "";
+            //         document.querySelector('#requirementMsg').innerHTML = requirement;
 
-                    }
-                }
-            },
+            //     }
+            // }
+            //},
             onEnterComment: function(e) {
                 debugger;
-                console.log(this.userInput);
-                console.log(this.userInputComment);
-                var d = new Date();
-                var month = d.getMonth() + 1;
-                var day = d.getDate();
+                if (e.keyCode === 13) {
+                    console.log(this.userInput);
+                    console.log(this.userInputComment);
+                    var d = new Date();
+                    var month = d.getMonth() + 1;
+                    var day = d.getDate();
 
-                var output = (('' + day).length < 2 ? '0' : '') + day + '/' +
-                    (('' + month).length < 2 ? '0' : '') + month + '/' +
-                    d.getFullYear();
-                var CurrentDate = output;
-                console.log(CurrentDate);
+                    var output = (('' + day).length < 2 ? '0' : '') + day + '/' +
+                        (('' + month).length < 2 ? '0' : '') + month + '/' +
+                        d.getFullYear();
+                    var CurrentDate = output;
+                    console.log(CurrentDate);
 
 
-                var comments = null;
-                console.log("--------->>>>"+this.commentArray);
-                var commentArray = this.commentArray;
-                commentArray=[]
-                var id = null;
-                id = this.currentId;
-                for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
-                    if (id == this.issueMarkerServiceResponse[i].id) {
-                        if (this.target != null) {
-                            comments = this.userInput;
+                    var comments = null;
+                    //var commentArray = this.commentArray;
+                    var id = null;
+                    id = this.currentId;
+                    for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
+                        if (id == this.issueMarkerServiceResponse[i].id) {
+                            if (this.target != null) {
+                                comments = this.userInput;
+                                var obj = {
+                                    "date": CurrentDate,
+                                    "message": comments
+                                }
+                                this.commentArray.push(obj);
+                                var myNode = document.getElementById("appendMsg");
+                                while (myNode.firstChild) {
+                                    myNode.removeChild(myNode.firstChild);
+                                }
+                                var count = this.commentArray.length;
+                                for (var i = 0; i < count; i++) {
+                                    debugger;
+                                    console.log(this.commentArray[i]);
+                                    var mainDiv = document.createElement('div');
+                                    //mainDiv.id="main"+i;
+                                    var dateDiv = document.createElement('div');
+                                    dateDiv.class = "date";
+                                    dateDiv.innerHTML = this.commentArray[i].date;
+                                    var commentDiv = document.createElement('div');
+                                    commentDiv.class = "comments";
+                                    commentDiv.innerHTML = this.commentArray[i].message;
+                                    mainDiv.appendChild(dateDiv);
+                                    mainDiv.appendChild(commentDiv);
+                                    var aDiv = document.getElementById('appendMsg');
+                                    aDiv.appendChild(mainDiv);
+                                }
+                                break;
+                            } else {
+                                comments = this.userInputComment;
+                                var obj = {
+                                    "date": CurrentDate,
+                                    "message": comments
+                                }
+                                this.commentArrayInspectionFinding.push(obj);
+                                var myNodeInspectionFinding = document.getElementById("appendMsgInspectionFinding");
+                                while (myNodeInspectionFinding.firstChild) {
+                                    myNodeInspectionFinding.removeChild(myNodeInspectionFinding.firstChild);
+                                }
+                                var count = this.commentArrayInspectionFinding.length;
+                                for (var i = 0; i < count; i++) {
+                                    debugger;
+                                    console.log(this.commentArrayInspectionFinding[i]);
+                                    var mainDivInspectionFinding = document.createElement('div');
+                                    //mainDiv.id="main"+i;
+                                    var dateDivInspectionFinding = document.createElement('div');
+                                    dateDivInspectionFinding.class = "date";
+                                    dateDivInspectionFinding.innerHTML = this.commentArrayInspectionFinding[i].date;
+                                    var commentDivInspectionFinding = document.createElement('div');
+                                    commentDivInspectionFinding.class = "comments";
+                                    commentDivInspectionFinding.innerHTML = this.commentArrayInspectionFinding[i].message;
+                                    mainDivInspectionFinding.appendChild(dateDivInspectionFinding);
+                                    mainDivInspectionFinding.appendChild(commentDivInspectionFinding);
+                                    var aDivInspectionFinding = document.getElementById('appendMsgInspectionFinding');
+                                    aDivInspectionFinding.appendChild(mainDivInspectionFinding);
+                                }
+                                break;
+                            }
+                            // comments = this.userInputComment;
+
                         } else {
-                            comments = this.userInputComment;
+
+                            comments = "";
+                            // document.querySelector('#appendMsg').innerHTML = comments;
+                            // document.querySelector('#appendMsgInspectionFinding').innerHTML = comments;
+
                         }
-                        // comments = this.userInputComment;
-                        var obj = {
-                            "date":CurrentDate,
-                            "message":comments
-                        };
-                         console.log("--------->>>>"+this.commentArray);
-                        commentArray.push(obj);
-                        var count = commentArray.length;
-                        for (var i = 0; i < count; i++) {
-                            debugger;
-                            console.log(commentArray[i]);
-                            var mainDiv = document.createElement('div');
-                            //mainDiv.id="main"+i;
-                            var dateDiv = document.createElement('div');
-                            dateDiv.class = "date";
-                            dateDiv.innerHTML = commentArray[i].date;
-                            var commentDiv = document.createElement('div');
-                            commentDiv.class = "comments";
-                            commentDiv.innerHTML = commentArray[i].message;
-                            mainDiv.appendChild(dateDiv);
-                            mainDiv.appendChild(commentDiv);
-                            var aDiv = document.getElementById('appendMsg');
-                            aDiv.appendChild(mainDiv);
-                            // var body = document.getElementsByClassName(".issue-date");
-                            // body[0].appendChild(dateDiv);
-                            // body[0].appendChild(commentDiv);
-
-
-                            // document.getElementById('appendMsg').innerHTML = 
-                            // '<div id="vishakha">'+
-                            // '<div class="date">' + CurrentDate + '</div>'+
-                            // '<div class="comments">' + commentArray[i] + '</div>'
-                            // + '</div>';
-
-                            // $('#appendMsg').find('.issue-date').append('<div class="date">' + CurrentDate + '</div>').append('<div class="comments">' + commentArray[i] + '</div>');
-                            /*document.getElementById('appendDate').append(CurrentDate);
-                            document.querySelector('#appendMsg').append(commentArray[i]);*/
-                        }
-                        break;
-                    } else {
-
-                        comments = "";
-                        document.querySelector('#appendMsg').innerHTML = comments;
-
                     }
                 }
             },
@@ -1232,7 +1367,7 @@ return;
             },
             setTarget: function() {
                 // alert('inside set target');
-                this.target = document.getElementById('input');
+                this.target = document.getElementById('inputReq');
                 this.targetComment = null;
             },
             setTargetComment: function() {
@@ -1346,7 +1481,7 @@ return;
 
         });
     })();
-     function getStatusName(statusId){
+    function getStatusName(statusId){
               if(statusId==0){
                  return "Fix";
               }else if(statusId==1){
