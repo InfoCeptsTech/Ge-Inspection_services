@@ -12,7 +12,7 @@ public class IssueMarkerModel {
     private String cssClass;
     private MetadataModel metaData;
     private Object annotation;
-    private String comments;
+    private Object comments;
     private String defectType;
     private String statusType;
     private String inspectorId;
@@ -51,10 +51,10 @@ public class IssueMarkerModel {
 	public void setAnnotation(Object annotation) {
 		this.annotation = annotation;
 	}
-	public String getComments() {
+	public Object getComments() {
 		return comments;
 	}
-	public void setComments(String comments) {
+	public void setComments(Object comments) {
 		this.comments = comments;
 	}
 	public String getDefectType() {
@@ -94,7 +94,7 @@ public class IssueMarkerModel {
 		this.description = description;
 	}
 	public IssueMarkerModel(String id, String issuePath, String cssClass,
-			MetadataModel metaData, Object annotation, String comments,
+			MetadataModel metaData, Object annotation, Object comments,
 			String defectType, String statusType, String description) {
 		super();
 		this.id = id;

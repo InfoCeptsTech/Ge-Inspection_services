@@ -81,7 +81,8 @@
                 }
                 for(i=0;i<this.dronesServiceResponse.length;i++){
                     this.inspection=this.dronesServiceResponse[i].inspection;
-                     for(j=0;j<this.dronesServiceResponse[i].inspection.length;j++){
+                    if(this.inspection!=undefined){
+                      for(j=0;j<this.dronesServiceResponse[i].inspection.length;j++){
                         if(this.inspection[j].inspectionId!=null){
                             inspectionId=this.inspection[0].inspectionId;
                           
@@ -93,6 +94,8 @@
                            
                         }
                      }
+                    }
+                     
                  }
 
             },
@@ -143,8 +146,8 @@
                      }
                      
                   // alert(this.url); 
-                   document.getElementById('ajaxAsset').url = this.url;
-                    document.getElementById('ajaxAsset').generateRequest();
+                  // document.getElementById('ajaxAsset').url = this.url;
+                  //  document.getElementById('ajaxAsset').generateRequest();
                    
             },
             urlState: function(urlPath) {

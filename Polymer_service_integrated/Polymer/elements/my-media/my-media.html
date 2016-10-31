@@ -2,6 +2,9 @@
 <link rel="import" href="/Polymer/bower_components/polymer/polymer.html">
 <link type="text/css" rel="stylesheet" href="/Polymer/elements/annotorious-bower/css/annotorious-dark.css" />
 <script type="text/javascript" src="/Polymer/elements/annotorious-bower/annotorious.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+
 <dom-module id="my-media">
     <template>
         <style>
@@ -66,7 +69,7 @@
             width: 96%;
         }
         </style>
-         <iron-ajax
+        <iron-ajax
             id="AjaxPost"
             url="/ir-0.0.1/inspection/addIssue"
             method="POST"
@@ -86,7 +89,7 @@
             on-error="_handleAjaxPostError"
             >
         </iron-ajax>
-        <drones-data-service id="ajax" url="{{url}}" drones-service-response="{{droneServiceResponse}}">
+        <drones-data-service id="ajax" url="{{url}}" drones-service-response="{{droneServiceResponse}}" >
         </drones-data-service>
         <iron-ajax id="issueAjax" url="{{markerurl}}" handle-as="json" on-response="handleResponseIssueMarker"></iron-ajax>
         <!-- <iron-ajax auto id="annotoriousAjax" url="/Polymer/annotorious.json" handle-as="json" on-response="handleResponseAnnotorious"></iron-ajax> -->
@@ -109,103 +112,17 @@
                 <template is="dom-repeat" items="{{item.inspection}}">
                     <div class="image-gall">
                         <template is="dom-repeat" items="{{item.phase}}">
-                            <span class="phase-title">{{item.title}}<label class="phase-title" id="{{item.title}}">0 issues</label><paper-checkbox class="paper-checkbox">NEED REVIEW</paper-checkbox></span>
+                            <span class="phase-title" id="{{item.title}}">{{item.title}}<label class="phase-title">0 issues</label><paper-checkbox class="paper-checkbox">NEED REVIEW</paper-checkbox></span>
                             <br/>
                             <div class="modal-body">
                                 <template is="dom-repeat" items="{{item.img}}">
                                     <div class="abc" id="abc">
-                                         <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="data:image/jpg;base64,{{item.imgBinary}}" class="phases-img" id="{{item.id}}">
+                                        <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="data:image/jpg;base64,{{item.imgBinary}}" class="phases-img" id="{{item.id}}">
                                             <!--  <img id="{{item.id}}" on-tap="addQuantity" raised class="phases-img" src="{{item.src}}"> -->
                                         </paper-icon-button>
                                         <!--  <img class$="{{item.class}}" src="{{item.issuePath}}"> -->
                                     </div>
                                     <!--  <paper-dialog heading="" id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop> -->
-                                    <div class="dailog-box" id="dialog-box">
-                                        <div class="dialog-container">
-                                            <div class="img-data">
-                                                <div class="zoomed-img flexchild">
-                                                    <img id="expandImg">
-                                                </div>
-                                                <div class="img-metadata flexchild">
-                                                    <!-- <h3> Altitude </h3>
-                                                    <span id="imgAltitude"> 42.026914</span>
-                                                    <hr> -->
-                                                    <div class="defectDrop">
-                                                        <span>Defect Type:</span>
-                                                        <paper-dropdown-menu>
-                                                            <paper-listbox class="dropdown-content" selected="0">
-                                                                <paper-item>Corrosion</paper-item>
-                                                                <paper-item>Thinning</paper-item>
-                                                                <paper-item>Stress cracking</paper-item>
-                                                                <paper-item>Mechanical Fatigue</paper-item>
-                                                                <paper-item>Thermal Fatigue</paper-item>
-                                                            </paper-listbox>
-                                                        </paper-dropdown-menu>
-                                                        <span>Status:</span>
-                                                        <paper-dropdown-menu>
-                                                            <paper-listbox class="dropdown-content" selected="0">
-                                                                <paper-item>Fix</paper-item>
-                                                                <paper-item>Continue to monitor</paper-item>
-                                                                <paper-item>Manual Inspection</paper-item>
-                                                            </paper-listbox>
-                                                        </paper-dropdown-menu>
-                                                        <br/>
-                                                        <span id="imageDetail"><iron-icon icon="add" on-click="_onClick" class="addBtn"></iron-icon>Image Detail</span>
-                                                        <iron-collapse style="width:219px">
-                                                            <div class="deco-collpase">
-                                                                <div class="Imgtitle">Altitude</div>
-                                                                <div class="ImgValue">87.5465</div>
-                                                                <div class="Imgtitle">Latitude &amp; Longitude</div>
-                                                                <div class="ImgValue">(3.414725, -122.167969)</div>
-                                                            </div>
-                                                        </iron-collapse>
-                                                        </paper-dropdown-menu>
-                                                        <!-- <button id="imageDetail" on-click="toggleDescr">Image Detail</button>
-                                                        <iron-collapse id="collapse" class="deco-collpase">
-                                                          <div>
-                                                            <div class="Imgtitle">Altitude</div>
-                                                            <div class="ImgValue">87.5465</div>
-                                                            <div class="Imgtitle">Latitude &amp; Longitude</div>
-                          <div class="ImgValue">(3.414725, -122.167969)</div>
-                                                          </div>
-                                                        </iron-collapse> -->
-                                                        <span>Inspection Requirement :</span>
-                                                        <div id="appendMsg" class="hii">
-                                                            <div class="issue-date">
-                                                            </div>
-                                                        </div>
-                                                        <iron-a11y-keys id="a11y" target="[[target]]" keys="enter" on-keys-pressed="onEnter"></iron-a11y-keys>
-                                                        <paper-input id="input" placeholder="Enter inspection requirements here" value="{{userInput::input}}" on-focus="setTarget"></paper-input>
-                                                        <div id="requirementMsg"></div>
-                                                        <!-- <input type="text" id="requirementSection" on-tap="submitRequirement"> -->
-                                                        <!-- <paper-button class="submit addComment">Add</paper-button> -->
-                                                        <hr class="divider">
-                                                        <span>Inspection Findings :</span>
-                                                        <iron-a11y-keys id="a11z" target="[[targetComment]]" keys="enter" on-keys-pressed="onEnterComment"></iron-a11y-keys>
-                                                        <paper-input id="inputComment" placeholder="Enter inspection findings" value="{{userInputComment::input}}" on-focus="setTargetComment"></paper-input>
-                                                        <!--  <input type="text" id="commentSection">
-                                                        <paper-textarea label="" id="commentSection"></paper-textarea>
-                                                        <paper-button class="submit addComment" on-click="submitComment">Add</paper-button> -->
-                                                    </div>
-                                                    <div class="editCropSection">
-                                                        <paper-icon-button src="/Polymer/images/zoomout_rest.png" on-click="zoomOut"></paper-icon-button>
-                                                        <paper-icon-button src="/Polymer/images/zoomin_rest.png" on-click="zoomIn"></paper-icon-button>
-                                                    </div>
-                                                    <!-- <div class="editCropSection">
-                                                        <iron-icon icon="icons:flip-to-back"></iron-icon>
-                                                        <iron-icon icon="icons:create"></iron-icon>
-                                                 </div>
-                                                    <div class="modal-footer ">
-
-                                                    </div> -->
-                                                    <div class="modal-footer ">
-                                                        <paper-button on-click="saveDialog" class="btn-default">Save</paper-button>
-                                                        <paper-button on-click="closeDialog" class="btn-default">Close</paper-button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                     <!--     </paper-dialog> -->
                             </div>
                     </div>
@@ -218,8 +135,8 @@
                                 <br/>
                             </span>
                 <span>
-                                 <paper-dropdown-menu>
-                                <paper-listbox class="dropdown-content" selected="0"  id="popdefectType">
+                                 <paper-dropdown-menu >
+                                <paper-listbox class="dropdown-content" id="defectType" selected="0">
                                     <paper-item>Corrosion</paper-item>
                                     <paper-item>Thinning</paper-item>
                                     <paper-item>Stress cracking</paper-item>
@@ -235,8 +152,8 @@
                                 <br/>
                             </span>
                 <span>
-                                  <paper-dropdown-menu>
-                                <paper-listbox class="dropdown-content" selected="0" id="popstatusType">
+                                  <paper-dropdown-menu >
+                                <paper-listbox class="dropdown-content" id="statusType" selected="0">
                                     <paper-item>Fix</paper-item>
                                     <paper-item>Continue to monitor</paper-item>
                                     <paper-item>Manual Inspection</paper-item>
@@ -251,7 +168,7 @@
         </paper-dialog>
         <paper-dialog heading="" id="commentDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
             <span>Enter Comments Here:</span>
-            <paper-textarea label="" id="textarea"></paper-textarea>
+            <paper-textarea label="" id="inputComment"></paper-textarea>
             <div class="modal-footer">
                 <paper-button dialog-dismiss class="submit">Submit</paper-button>
                 <paper-button dialog-dismiss class="close">Close</paper-button>
@@ -269,6 +186,94 @@
         </div>
         </template>
         </template>
+        <div class="dailog-box" id="dialog-box">
+            <div class="dialog-container">
+                <div class="img-data">
+                    <div class="zoomed-img flexchild">
+                        <img id="expandImg">
+                    </div>
+                    <div class="img-metadata flexchild">
+                        <!-- <h3> Altitude </h3>
+                                                    <span id="imgAltitude"> 42.026914</span>
+                                                    <hr> -->
+                        <div class="defectDrop">
+                            <span>Defect Type:</span>
+                            <paper-dropdown-menu>
+                                <paper-listbox class="dropdown-content" selected="0" id="popdefectType">
+                                    <paper-item>Corrosion</paper-item>
+                                    <paper-item>Thinning</paper-item>
+                                    <paper-item>Stress cracking</paper-item>
+                                    <paper-item>Mechanical Fatigue</paper-item>
+                                    <paper-item>Thermal Fatigue</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                            <span>Status:</span>
+                            <paper-dropdown-menu>
+                                <paper-listbox class="dropdown-content" selected="0" id="popstatusType">
+                                    <paper-item>Fix</paper-item>
+                                    <paper-item>Continue to monitor</paper-item>
+                                    <paper-item>Manual Inspection</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                            <br/>
+                            <span id="imageDetail"><iron-icon icon="add" on-click="_onClick" class="addBtn"></iron-icon>Image Detail</span>
+                            <iron-collapse style="width:219px">
+                                <div class="deco-collpase">
+                                    <div class="Imgtitle">Altitude</div>
+                                    <div class="ImgValue">87.5465</div>
+                                    <!--
+                                    <div class="Imgtitle">Latitude &amp; Longitude</div>
+                                    <div class="ImgValue">(3.414725, -122.167969)</div>
+                                    -->
+                                </div>
+                            </iron-collapse>
+                            </paper-dropdown-menu>
+                            <!-- <button id="imageDetail" on-click="toggleDescr">Image Detail</button>
+                                                        <iron-collapse id="collapse" class="deco-collpase">
+                                                          <div>
+                                                            <div class="Imgtitle">Altitude</div>
+                                                            <div class="ImgValue">87.5465</div>
+                                                            <div class="Imgtitle">Latitude &amp; Longitude</div>
+                          <div class="ImgValue">(3.414725, -122.167969)</div>
+                                                          </div>
+                                                        </iron-collapse> -->
+                           <span>Inspection Requirement :</span>
+                            <div id="appendMsg" class="hii">
+                                <div class="issue-date" id="issue-date">
+                                </div>
+                            </div>
+                            <iron-a11y-keys id="a11y" target="[[target]]" keys="enter" on-keys-pressed="onEnter"></iron-a11y-keys>
+                            <paper-input id="input" placeholder="Enter inspection requirements here" value="{{userInput::input}}" on-focus="setTarget"></paper-input>
+                            <div id="requirementMsg"></div>
+                            <!-- <input type="text" id="requirementSection" on-tap="submitRequirement"> -->
+                            <!-- <paper-button class="submit addComment">Add</paper-button> -->
+                            <hr class="divider">
+                            <span>Inspection Findings :</span>
+                            <iron-a11y-keys id="a11z" target="[[targetComment]]" keys="enter" on-keys-pressed="onEnterComment"></iron-a11y-keys>
+                            <paper-input id="inputComment" placeholder="Enter inspection findings" value="{{userInputComment::input}}" on-focus="setTargetComment"></paper-input>
+                            <!--  <input type="text" id="commentSection">
+                                                        <paper-textarea label="" id="commentSection"></paper-textarea>
+                                                        <paper-button class="submit addComment" on-click="submitComment">Add</paper-button> -->
+                        </div>
+                        <div class="editCropSection">
+                            <paper-icon-button src="/Polymer/images/zoomout_rest.png" on-click="zoomOut"></paper-icon-button>
+                            <paper-icon-button src="/Polymer/images/zoomin_rest.png" on-click="zoomIn"></paper-icon-button>
+                        </div>
+                        <!-- <div class="editCropSection">
+                                                        <iron-icon icon="icons:flip-to-back"></iron-icon>
+                                                        <iron-icon icon="icons:create"></iron-icon>
+                                                 </div>
+                                                    <div class="modal-footer ">
+
+                                                    </div> -->
+                        <div class="modal-footer ">
+                            <paper-button on-click="saveDialog" class="btn-default">Save</paper-button>
+                            <paper-button on-click="closeDialog" class="btn-default">Close</paper-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         </div>
         <!-- <paper-slider id="ratings" pin snaps min="0" max="18" max-markers="18" step="1" value="4.15" editable></paper-slider> -->
         <paper-button id="reviewBtn" class="reviewbtn pull-right reviewMargin">Review Issue</paper-button>
@@ -395,11 +400,38 @@
                         value: 0
                     }
                 },
-                currentId:{
+                currentId: {
                     type: String,
                     value: ''
+                },
+                commentArray: {
+                    type: Array,
+                    value: []
                 }
 
+            },
+             ready: function(){
+               //  alert(" in ready-----------");
+                     title=localStorage.getItem('assetTitle');
+                     inspectorId=localStorage.getItem('inspectorId');
+                     inspectionId=localStorage.getItem('inspectionId');
+
+              //       alert("title in media: "+title+ ", inspectionId: "+inspectionId);
+                     
+                     if(title==null || title=='null'){
+                        this.url = "/ir-0.0.1/inspection/getAsset/inspectorId="+inspectorId;
+                     }else if(inspectionId==null || inspectionId=='undefined'){
+                         this.url = "/ir-0.0.1/inspection/getMediaDate/inspectorId="+inspectorId+"&assetId="+title;   
+                     }else{
+                         this.url = "/ir-0.0.1/inspection/getMedia/inspectorId="+inspectorId+"&assetId="+title+"&inspectionId="+inspectionId; 
+
+                         var inspectionId=localStorage.getItem("inspectionId");
+                         var assetId=localStorage.getItem("assetId");
+                     }
+                      this.markerurl="/ir-0.0.1/inspection/getIssueMarker/inspectorId="+inspectorId
+                  //  alert(this.url);
+
+                     
             },
             _onClick: function() {
                 var button = this.querySelector('iron-icon'),
@@ -416,7 +448,8 @@
             },
             handleResponse: function() {
                 // debugger;
-               this.dronesServiceResponse = this.droneServiceResponse;
+                this.dronesServiceResponse = this.droneServiceResponse;
+                //alert("response :::: "+this.dronesServiceResponse);
                 //console.log(this.dronesServiceResponse);
                 if (this.dronesServiceResponse.length > 0) {
                     var a = JSON.stringify(this.dronesServiceResponse);
@@ -424,28 +457,28 @@
                     this.dronesServiceResponse = JSON.parse(localStorage.getItem('dronesServiceResponse'));
                     this.url = localStorage.getItem('url');
                     inspectorId=localStorage.getItem('inspectorId');
+                  //  alert("inspectorId::::"+inspectorId);
                     document.getElementById('issueAjax').url="/ir-0.0.1/inspection/getIssueMarker/inspectorId="+inspectorId;
 
                     document.getElementById('issueAjax').generateRequest();
+              //       alert("marker url:: "+document.getElementById('issueAjax').url);
                 }
 
+               
+
             },
-            handleResponseIssueMarker: function() {
-                //debugger;
+            handleResponseIssueMarker: function(data) {
+                debugger;
+               // alert(this.$.issueAjax.lastResponse);
+               console.log("last response :::"+this.$.issueAjax.lastResponse);
                 this.issueMarkerServiceResponse = this.$.issueAjax.lastResponse;
-                // console.log('issue-marker:');
-                // console.log(this.issueMarkerServiceResponse);
-                if (this.issueMarkerServiceResponse != undefined) {
-                    for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
-                        var elem = document.createElement("img");
-                        elem.setAttribute("src", this.issueMarkerServiceResponse[i].issuePath);
-                        elem.setAttribute("class", this.issueMarkerServiceResponse[i].class);
-                        document.getElementById(this.issueMarkerServiceResponse[i].id).appendChild(elem);
-                    }
-                }
-                 for (var i = 0; i < this.dronesServiceResponse.length; i++) {
+
+
+for (var i = 0; i < this.dronesServiceResponse.length; i++) {
                               inspection = this.dronesServiceResponse[i].inspection;
+                              if(inspection!=undefined && inspection!='undefined' ){
                               for (var j = 0; j < inspection.length; j++) {
+                                debugger;
                                 phaseArr = inspection[j].phase;
                                 if(phaseArr){
                                 for(var k=0;k<phaseArr.length;k++){
@@ -467,8 +500,27 @@
                         }
                     }
                 }
+                }
+
+                // console.log('issue-marker:');issueMarkerServiceResponse
+                 console.log(this.issueMarkerServiceResponse);
+                if (this.issueMarkerServiceResponse != undefined) {
+                    for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
+                        var elem = document.createElement("img");
+                        elem.setAttribute("src", this.issueMarkerServiceResponse[i].issuePath);
+                        elem.setAttribute("class", this.issueMarkerServiceResponse[i].class);
+                        console.log(this.issueMarkerServiceResponse[i]);
+                        if(document.getElementById(this.issueMarkerServiceResponse[i].id)!=null){
+                        document.getElementById(this.issueMarkerServiceResponse[i].id).appendChild(elem);    
+                        }
+                        
+                    }
+                }
+                 
             },
              _handleAjaxPostResponse:function(){
+                 var div = document.getElementById("dialog-box");
+                div.style.display = "none";
                                
                 var inspectionId=localStorage.getItem("inspectionId");
                 var assetId=localStorage.getItem("assetId");
@@ -505,30 +557,8 @@
                 // console.log(this.stringify(this.dronesServiceResponse));
                 //  console.log(this.dronesServiceResponse);
             },
-            ready:function(){
-                
-                     title=localStorage.getItem('assetTitle');
-                     inspectorId=localStorage.getItem('inspectorId');
-                     inspectionId=localStorage.getItem('inspectionId');
-
-                    // alert("title in media: "+title+ ", inspectionId: "+inspectionId);
-                     
-                     if(title==null || title=='null'){
-                        this.url = "/ir-0.0.1/inspection/getAsset/inspectorId="+inspectorId;
-                     }else if(inspectionId==null || inspectionId=='undefined'){
-                         this.url = "/ir-0.0.1/inspection/getMediaDate/inspectorId="+inspectorId+"&assetId="+title;   
-                     }else{
-                         this.url = "/ir-0.0.1/inspection/getMedia/inspectorId="+inspectorId+"&assetId="+title+"&inspectionId="+inspectionId; 
-
-                         var inspectionId=localStorage.getItem("inspectionId");
-                         var assetId=localStorage.getItem("assetId");
-                     }
-                      this.markerurl="/ir-0.0.1/inspection/getIssueMarker/inspectorId="+inspectorId
-                    // alert(this.url);
-
-                     
-            },
-               addComments:function(e){
+            
+            addComments:function(e){
                 //debugger;
                 var inspection;
                 var phase;
@@ -606,7 +636,7 @@
                     alert('Please select image');
                 }
             },
-         editSubmitClick: function(e) {
+             editSubmitClick: function(e) {
                 //debugger;
                 var inspection;
                 var phase;
@@ -770,11 +800,11 @@ return;
                 //     anno.removeAnnotation(this.annoArray);
                 // }
                 this.currentId = e.model.item.id;
+                this.megaPath=e.model.item.megaPath;
                 var dialog = document.querySelector('#dialog');
                 var expand = document.querySelector('#expandImg');
                 /*var altitude = document.querySelector('#imgAltitude');*/
                 expand.src = e.model.item.megaPath;
-                this.megaPath=e.model.item.megaPath;
                 var div = document.getElementById("dialog-box");
                 div.style.display = "block";
                 this.annoArray = [];
@@ -782,12 +812,31 @@ return;
                 for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
                     if (e.model.item.id == this.issueMarkerServiceResponse[i].id) {
                         //annotationsArray = this.annotoriousResponse[i].annotation;
+                        this.commentArray = this.issueMarkerServiceResponse[i].comments;
                         this.annoArray = this.issueMarkerServiceResponse[i].annotation;
                         expand.style.width = this.issueMarkerServiceResponse[i].width + "px";
                         expand.style.height = this.issueMarkerServiceResponse[i].height + "px";
                         break;
 
                     }
+                }
+                for (var i = 0; i < this.commentArray.length; i++) {
+                    var CurrentDate = this.commentArray[i].date;
+                    var message = this.commentArray[i].message;
+                    //console.log(commentArray[i]);
+                    var mainDiv = document.createElement('div');
+                    //mainDiv.id="main"+i;
+                    var dateDiv = document.createElement('div');
+                    dateDiv.class = "date";
+                    dateDiv.innerHTML = CurrentDate;
+                    var commentDiv = document.createElement('div');
+                    commentDiv.class = "comments";
+                    commentDiv.innerHTML = message;
+                    mainDiv.appendChild(dateDiv);
+                    mainDiv.appendChild(commentDiv);
+                    var aDiv = document.getElementById('appendMsg');
+                    aDiv.appendChild(mainDiv);
+
                 }
                 // for(var i=0;i<this.annoArray.length;i++){
                 //     var src = this.annoArray[i].src;
@@ -944,16 +993,42 @@ return;
                 for (var i = 0; i < this.annoArray.length; i++) {
                     anno.removeAnnotation(this.annoArray[i]);
                 }
+                for(var i=0;i<this.commentArray.length;i++){
+                   document.getElementById('appendMsg').innerHTML = "";
+                }
+                this.commentArray = [];
+                //$('#appendMsg').empty();
                 // anno.destroy();
 
             },
             saveDialog: function(e) {
+                var el=document.getElementById('expandImg');
+
+                var viewportOffset = el.getBoundingClientRect();
+                 debugger;
+                // these are relative to the viewport, i.e. the window
+
+               // alert(viewportOffset.x+"---"+viewportOffset.left);
+               // alert(viewportOffset.y+"---"+viewportOffset.top);
+                
+                
+                var xposition = viewportOffset.left;
+                var yposition = viewportOffset.top;
+                var width = viewportOffset.width;
+                var height = viewportOffset.height;
+
+              
+
                 var id=this.megaPath;
                                
                 var div = document.getElementById("dialog-box");
                 var inspectorId=localStorage.getItem('inspectorId');
-                var defectType=getDefectName(document.getElementById("type").selected);
-                var comments= document.getElementById('inputRequirement').value;
+                var defectType=getDefectName(document.getElementById("defectType").selected);
+
+              //  alert(document.getElementById('requirementMsg'));
+               // alert(document.getElementById('appendMsg'));
+
+                var comments= document.getElementById('requirementMsg').innerHTML;
                 var desc= document.getElementById('inputComment').value;
 
                 var statusType=getStatusName(document.getElementById("statusType").selected);
@@ -964,7 +1039,7 @@ return;
                   
 
 
-                console.log("id : "+id+ "defectType: "+defectType+", comments: "+comments+", statusType : "+statusType+" , assetId : "+assetId+" , inspectionId: "+inspectionId+" , annotatedMetadata: "+annotatedMetadata+" , desc: "+desc);
+                console.log("id : "+id+ "defectType: "+defectType+", comments: "+comments+", statusType : "+statusType+" , assetId : "+assetId+" , inspectionId: "+inspectionId+" , annotatedMetadata: "+annotatedMetadata+" , desc: "+desc+ " :"+", viewportOffset: "+viewportOffset);
 
 
                 this.$.AjaxPost.body = [{
@@ -976,7 +1051,8 @@ return;
                                         "statusType": statusType,
                                         "assetId": assetId,
                                         "inspectionId": inspectionId,
-                                        "description": desc
+                                        "description": desc,
+                                        "viewportOffset":[xposition,yposition,width,height]
                                     }
                                     ];
 
@@ -984,9 +1060,7 @@ return;
                 
                 //this.$.AjaxPost.body = {"id":"/Polymer/images/0001.jpg"};
                 this.$.AjaxPost.generateRequest();
-
-                var div = document.getElementById("dialog-box");
-                div.style.display = "none";
+              
                 var obj = {
                     "id": e.model.item.id,
                     "annotation": anno.getAnnotations()
@@ -998,6 +1072,11 @@ return;
                 var img = document.getElementById("expandImg");
                 img.style.width = 0 + "px";
                 img.style.height = 0 + "px";
+                 for(var i=0;i<this.commentArray.length;i++){
+                   document.getElementById('appendMsg').innerHTML = "";
+                }
+                this.commentArray = [];
+                //$('#appendMsg').empty();
                 //  anno.destroy();
             },
             toggleDialogEdit: function(e) {
@@ -1049,7 +1128,9 @@ return;
 
 
                 var comments = null;
-                var commentArray = [];
+                console.log("--------->>>>"+this.commentArray);
+                var commentArray = this.commentArray;
+                commentArray=[]
                 var id = null;
                 id = this.currentId;
                 for (var i = 0; i < this.issueMarkerServiceResponse.length; i++) {
@@ -1059,13 +1140,41 @@ return;
                         } else {
                             comments = this.userInputComment;
                         }
-                       // comments = this.userInputComment;
-                        commentArray.push(comments);
+                        // comments = this.userInputComment;
+                        var obj = {
+                            "date":CurrentDate,
+                            "message":comments
+                        };
+                         console.log("--------->>>>"+this.commentArray);
+                        commentArray.push(obj);
                         var count = commentArray.length;
                         for (var i = 0; i < count; i++) {
-
+                            debugger;
                             console.log(commentArray[i]);
-                            $('#appendMsg').find('.issue-date').append('<div class="date">' + CurrentDate + '</div>').append('<div class="comments">' + commentArray[i] + '</div>');
+                            var mainDiv = document.createElement('div');
+                            //mainDiv.id="main"+i;
+                            var dateDiv = document.createElement('div');
+                            dateDiv.class = "date";
+                            dateDiv.innerHTML = commentArray[i].date;
+                            var commentDiv = document.createElement('div');
+                            commentDiv.class = "comments";
+                            commentDiv.innerHTML = commentArray[i].message;
+                            mainDiv.appendChild(dateDiv);
+                            mainDiv.appendChild(commentDiv);
+                            var aDiv = document.getElementById('appendMsg');
+                            aDiv.appendChild(mainDiv);
+                            // var body = document.getElementsByClassName(".issue-date");
+                            // body[0].appendChild(dateDiv);
+                            // body[0].appendChild(commentDiv);
+
+
+                            // document.getElementById('appendMsg').innerHTML = 
+                            // '<div id="vishakha">'+
+                            // '<div class="date">' + CurrentDate + '</div>'+
+                            // '<div class="comments">' + commentArray[i] + '</div>'
+                            // + '</div>';
+
+                            // $('#appendMsg').find('.issue-date').append('<div class="date">' + CurrentDate + '</div>').append('<div class="comments">' + commentArray[i] + '</div>');
                             /*document.getElementById('appendDate').append(CurrentDate);
                             document.querySelector('#appendMsg').append(commentArray[i]);*/
                         }
@@ -1237,7 +1346,7 @@ return;
 
         });
     })();
-    function getStatusName(statusId){
+     function getStatusName(statusId){
               if(statusId==0){
                  return "Fix";
               }else if(statusId==1){

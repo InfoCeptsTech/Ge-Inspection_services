@@ -32,6 +32,8 @@ public class InspectionMedia {
 	private String description; 
 	@Column(length = 4000)
 	private String annotedComments;
+	@Column(name = "issueimage")
+	private byte[] issueImage;
 	
 	
 	public InspectionMedia() {
@@ -55,7 +57,7 @@ public class InspectionMedia {
 	public InspectionMedia(String comment, String blobId,
 			String inspectorId, Date inspectionDate, String statusType,
 			String defectType, String annotatedMetadata, String description,
-			String assetId, String inspectionId) {
+			String assetId, String inspectionId,byte[] issueImage,String annotedComments) {
 		this.comment=comment;
 		this.blobId=blobId;
 		this.inspectorId=inspectorId;
@@ -66,6 +68,8 @@ public class InspectionMedia {
 		this.description=description;
 		this.assetId=assetId;
 		this.inspectionId=inspectionId;
+		this.issueImage=issueImage;
+		this.annotedComments=annotedComments;
 	}
 	public InspectionMedia(String blobId, Date inspectionDate, String statusType) {
 		this.blobId=blobId;
@@ -138,7 +142,14 @@ public class InspectionMedia {
 	}
 	public void setAnnotedComments(String annotedComments) {
 		this.annotedComments = annotedComments;
-	} 
+	}
 
+	public byte[] getIssueImage() {
+		return issueImage;
+	}
+
+	public void setIssueImage(byte[] issueImage) {
+		this.issueImage = issueImage;
+	} 
 	
 }

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +40,8 @@ public class IssueController {
 	
 	@Value("${media.location}")
  	private String mediaLocation;
+	@Autowired
+	private ImageUtil imageUtil;
 	
 	
 	@RequestMapping(value = "/inspection/addIssue", method = RequestMethod.POST)
@@ -58,11 +62,33 @@ public class IssueController {
 			String statusType=String.valueOf(reqMap.get("statusType"));
 			String inspectionId=(String)reqMap.get("inspectionId");
 			String assetId=(String)reqMap.get("assetId");
-			InspectionMedia media=new InspectionMedia(comment, blobId, inspectorId, new Date(), statusType, defectType,  annotation,description,assetId,inspectionId);
+			Object viewportOffset=reqMap.get("viewportOffset");
+			byte[] imgByte=null;
+			if(viewportOffset!=null){
+				imgByte=imageUtil.captureImage(blobId,  (List<Double>) viewportOffset);
+			}
+			
+			InspectionMedia media=new InspectionMedia(comment, blobId, inspectorId, new Date(), statusType, defectType,  annotation,description,assetId,inspectionId,imgByte,getAnnotatedComments(reqMap.get("annotation")));
 			inspectionMediaList.add(media);
 		}
 		issueDaoImpl.addIssue(inspectionMediaList);
 		return "success";
+	}
+	
+	private String getAnnotatedComments(Object annotatedMetadata){
+		String annotatedComments=" ";
+		if(annotatedMetadata!=null && String.valueOf(annotatedMetadata)!=null){
+			List<Object> annoationList=(List<Object>) annotatedMetadata;
+			
+			int index=1;
+			for(Object obj:annoationList ){
+				Map<String,Object> objMap=(Map<String, Object>) obj;
+				annotatedComments=annotatedComments.concat(index+". "+(String) objMap.get("text")+", ");
+				index++;
+			}
+		}
+		
+		return annotatedComments.substring(0,annotatedComments.length()-1);
 	}
 	@RequestMapping(value = "/inspection/addUpdateIssue", method = RequestMethod.POST)
 	public String addUpdateIssue(@RequestBody String inspectionMedia){
@@ -158,9 +184,10 @@ public class IssueController {
 					String compFilePath="";
 					//File file=new File(mediaLocation+inspectionMedia.getBlobId());
 					//if(!ImageUtil.isCompressedFilePresent(compMediaLocation+file.getName())){
-						compFilePath=ImageUtil.storeAndCompressedFile(mediaLocation+inspectionMedia.getBlobId(), compMediaLocation);
+					//	compFilePath=ImageUtil.storeAndCompressedFile(mediaLocation+inspectionMedia.getBlobId(), compMediaLocation);
 					//}
-					IssueDtlModel issueDtlModel=new IssueDtlModel(inspectionMedia.getDefectType(), "/Polymer/temp/"+compFilePath, inspectionMedia.getBlobId(), "/Polymer/images/marker2.png", inspectionMedia.getStatusType(), "tooltip");
+					 String base64EncodedImg = DatatypeConverter.printBase64Binary(inspectionMedia.getIssueImage());
+					IssueDtlModel issueDtlModel=new IssueDtlModel(inspectionMedia.getDefectType(), "/Polymer/temp/"+compFilePath, inspectionMedia.getBlobId(), "/Polymer/images/marker2.png", inspectionMedia.getStatusType(), "tooltip",base64EncodedImg);
 					set.add(issueDtlModel);
 				}
 				issueInspection.setIssueDtlModel(set);

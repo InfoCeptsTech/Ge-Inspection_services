@@ -1,5 +1,7 @@
 package com.ge.inspection.ir.rest;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +9,6 @@ import java.util.concurrent.Callable;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,24 +21,22 @@ import com.ge.inspection.ir.util.JSONUtil;
 
 public class ImageCallable implements Callable<Map<String,String>>{
 
-    @Value("${immuta.authenticate.url}")
     private String authenticateUrl;
-    @Value("${immuta.image.url}")
     private String imageUrl;
-    @Value("${immuta.authenticate.username}")
     private String username;
-    @Value("${immuta.authenticate.password}")
     private String password;
     private String imgPath;
     	
+    private String mediaLocation;
 
 		public ImageCallable(String imgPath, String authenticateUrl,
-				String imageUrl, String username, String password) {
+				String imageUrl, String username, String password,String mediaLocation) {
 			this.imgPath=imgPath;
 			this.authenticateUrl = authenticateUrl;
 			this.imageUrl = imageUrl;
 			this.username = username;
 			this.password = password;
+			this.mediaLocation=mediaLocation;
 		}
 
 
@@ -50,29 +49,46 @@ public class ImageCallable implements Callable<Map<String,String>>{
 			 headers.setContentType(MediaType.APPLICATION_JSON_UTF8);  
 			 
 			 String requestJson="{\"username\":\""+username+"\",\"password\":\""+password+"\"}";
-
+			// System.out.println("authenticateUrl :: "+authenticateUrl);
 			 HttpEntity<String> entity = new HttpEntity<String>(requestJson,headers);
 			 String response = restTemplate.postForObject(authenticateUrl, entity,String.class); 
 		     Map<String,String> respMap=(Map<String, String>) JSONUtil.toObject(response, Map.class);
 		     String token=respMap.get("token");
-	    	
+		     System.out.println(" token : "+token);
 		     HttpHeaders imageHeaders = new HttpHeaders();
 		    
 			 imageHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8); 
 			 imageHeaders.add("Authorization", "Bearer "+token);
 			 imageHeaders.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-
+		     
+		     File imgFile=new File(imgPath);
 			 HttpEntity<String> imageEntity = new HttpEntity<String>("parameters", imageHeaders);
 			 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 			 
-			// ResponseEntity<byte[]> responseEntity=restTemplate.exchange("http://10.10.34.48:8080/ir-0.0.1/inspection/media/mediaId=0002", HttpMethod.GET, imageEntity, byte[].class);
-			 
+			// ResponseEntity<byte[]> responseEntity=restTemplate.exchange("http://localhost:8080/ir-0.0.1/inspection/media/mediaId="+imgFile.getName().split("\\.")[0], HttpMethod.GET, imageEntity, byte[].class);
+		//	 System.out.println("url :: "+imageUrl.concat(imgPath)+" , with token : "+token);
 			 ResponseEntity<byte[]> responseEntity=restTemplate.exchange(imageUrl.concat(imgPath), HttpMethod.GET, imageEntity, byte[].class);
-			 byte[] imgByteArray=responseEntity.getBody();
-			 String base64EncodedImg = DatatypeConverter.printBase64Binary(imgByteArray);
+		//	 System.out.println("responseEntity::: "+responseEntity);
 			 Map<String,String> imgMap=new HashMap<String, String>();
-			 imgMap.put(imgPath, base64EncodedImg);
-			 
+			 if(responseEntity!=null){
+				 
+				 byte[] imgByteArray=responseEntity.getBody();
+				 //System.out.println("imgByteArray::: "+imgByteArray);
+				 String base64EncodedImg = DatatypeConverter.printBase64Binary(imgByteArray);
+				 imgMap.put(imgFile.getName().split("\\.")[0], base64EncodedImg);
+				
+				 
+				 FileOutputStream stream = new FileOutputStream(mediaLocation+"/Polymer/images/"+imgFile.getName());
+				 try {
+				     stream.write(imgByteArray);
+				  //   System.out.println("after file write , location : "+mediaLocation+"/Polymer/images/"+imgFile.getName());
+				 } catch(Exception e){
+					e.printStackTrace();
+				 } finally {
+				     stream.close();
+				 }
+				
+			 }
 			 return imgMap;
 		}
     	

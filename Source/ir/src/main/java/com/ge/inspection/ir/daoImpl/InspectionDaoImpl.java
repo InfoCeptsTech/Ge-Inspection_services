@@ -46,6 +46,7 @@ public class InspectionDaoImpl implements InspectionDao {
     @Value("${immuta.authenticate.password}")
     private String password;
     
+    
 	@Override
 	public AssetModel[] getInspectionDtls(String inspectorId) {
 		// TODO Auto-generated method stub
@@ -135,21 +136,21 @@ public class InspectionDaoImpl implements InspectionDao {
 							
 							//String compPath=ImageUtil.storeAndCompressedFile(mediaLocation+inspectionDtls.getBlobId(), compMediaLocation);
 							File file=new File(inspectionDtls.getBlobId());
-							String id=file.getName().split("\\.")[0];
-							
+							String id=file.getName();
+							System.out.println("file name : "+id);
 							List<Metadata> metadataList=new ArrayList<Metadata>();
 							
 							Metadata metadata=new Metadata("Altitude",String.valueOf(inspectionDtls.getLocation_globalPosition_altitude()));
 							metadataList.add(metadata);
 							
 							String imgPath=inspectionDtls.getBlobId();
-				    		ImageCallable callable =new ImageCallable(imgPath,authenticateUrl,imageUrl,username,password);
+				    		ImageCallable callable =new ImageCallable(imgPath,authenticateUrl,imageUrl,username,password,mediaLocation);
 				    		Future<Map<String,String>> future = executor.submit(callable);
 				    		list.add(future);
 				    		 
 							//byte[] imgByte=ImageUtil.getImageBinary(mediaLocation+inspectionDtls.getBlobId());
 							
-							imageModelList.add(new ImageModel(id,inspectionDtls.getBlobId(), inspectionDtls.getBlobId(),inspectionDtls.getInspectionStop(),inspectionDtls.getInspectionStart(),metadataList,""));
+							imageModelList.add(new ImageModel(id.split("\\.")[0],inspectionDtls.getBlobId(), "/Polymer/images/"+id,inspectionDtls.getInspectionStop(),inspectionDtls.getInspectionStart(),metadataList,""));
 							index++;
 						}
 					}
@@ -162,16 +163,23 @@ public class InspectionDaoImpl implements InspectionDao {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+   		 
+   		 //System.out.println("KEYSET ::::::::::::::"+allImgMap.keySet());
    	 }
+	//	System.out.println("---------------before executor shutdown------------------");
    	 executor.shutdown();
    	
    	for(MediaModel phase:phaseSet){
    		for(InspectionDtls inspectionDtls:inspectionDtlsList){
 			if(inspectionDtls.getInspectionPhaseId().equalsIgnoreCase(phase.getTitle())){
 		   		List<ImageModel> imageModelList=phase.getImageModel();
+		   		
 		   		for(int i=0;i<imageModelList.size();i++){
 		   			ImageModel imageModel=imageModelList.get(i);
-		   			imageModelList.get(i).setImgBinary(allImgMap.get(imageModel.getMegaPath()));
+		   		//	System.out.println("<<<<<<<<<<<<<<<<<<<<<<setting image binary>>>>>"+imageModel.getMegaPath()+">>>>>>>>>>>>>>>>>>>>>>>>"+imageModel.getMegaPath().length());
+		   		  
+		   			//System.out.println("BINARY ::::::::::::::"+allImgMap.get(imageModel.getId()));
+		   			//imageModelList.get(i).setImgBinary(allImgMap.get(imageModel.getId()));
 		   		}
 		   		phase.setImageModel(imageModelList);
 			}

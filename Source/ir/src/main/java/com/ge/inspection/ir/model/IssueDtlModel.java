@@ -13,10 +13,11 @@ public class IssueDtlModel {
   private String issuesMarker;
   private String statusType;
   private String toolTip;
+  private String issueImage;
   
   
 public IssueDtlModel(String defectType, String miniPath, String megaPath,
-		String issuesMarker, String statusType, String toolTip) {
+		String issuesMarker, String statusType, String toolTip,String issueImage) {
 	super();
 	this.defectType = defectType;
 	this.miniPath = miniPath;
@@ -24,6 +25,7 @@ public IssueDtlModel(String defectType, String miniPath, String megaPath,
 	this.issuesMarker = issuesMarker;
 	this.statusType = statusType;
 	this.toolTip = toolTip;
+	this.issueImage= issueImage;
 }
 public String getDefectType() {
 	return defectType;
@@ -60,6 +62,12 @@ public String getToolTip() {
 }
 public void setToolTip(String toolTip) {
 	this.toolTip = toolTip;
+}
+public String getIssueImage() {
+	return issueImage;
+}
+public void setIssueImage(String issueImage) {
+	this.issueImage = issueImage;
 }
   
   

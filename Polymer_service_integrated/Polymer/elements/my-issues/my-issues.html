@@ -62,7 +62,7 @@
                             <div class="issues">
                                 <span class="issue-title"><img src="{{item.issues-markers}}" width="20" height="20">{{item.defectType}}</span>
                                 <!-- <img id="img-tooltip" src="{{item.mini-path}}" class="img-tooltip"> -->
-                                <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="{{item.miniPath}}" class="img-tooltip" id="img-tooltip-{{index}}">
+                                <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="data:image/jpg;base64,{{item.issueImage}}" class="img-tooltip" id="img-tooltip-{{index}}">
                                 </paper-icon-button>
                                 <paper-tooltip for="img-tooltip-{{index}}">{{item.tooltip}}</paper-tooltip>
                                 <span style="width: 100%">
@@ -83,10 +83,10 @@
     left: 350px;
     box-sizing: border-box;
     max-height: 870px;
-    max-width: 1200px;
-    padding: 0px 20px;
+    max-width: 1200px;="data:image/jpg;base64,{{item.issueImage}}"20px;
     width: 50%;" entry-animation=" scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-                                <img src="{{item.megaPath}}" id="expandImgIssue" style="width:100%">
+
+                                <img src="="data:image/jpg;base64,{{item.issueImage}}" id="expandImgIssue" style="width:100%">
                                 <div class="modal-footer ">
                                     <paper-button dialog-dismiss class="btn-default">Close</paper-button>
                                 </div>
@@ -142,7 +142,7 @@
             _change:function(e){
                  this.megapath=e.model.item.megaPath;
                 if(e.detail.value.length>0){
-                 console.log("-->"+e.model.item.megaPath+"<--");
+                
                   document.getElementById('issueAjax').generateRequest();
                    this.$.AjaxPost.body = [{
                                         "id": this.megapath,
