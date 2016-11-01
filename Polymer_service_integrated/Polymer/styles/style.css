@@ -904,7 +904,7 @@ paper-textarea#commentSection {
     width: 16px !important;
     height: 16px !important;
 }
-#appendDate, #appendMsg, #requirementMsg {
+#appendDate, #appendMsg, #requirementMsg,#appendMsgIssue {
     float: left;
     width: 100%;
     font-size: 15px;
@@ -1091,7 +1091,7 @@ paper-input#inputReq, #inputComment {
 .paper-input-container-1 .input-content.paper-input-container input, .paper-input-container-1 .input-content.paper-input-container textarea, .paper-input-container-1 .input-content.paper-input-container iron-autogrow-textarea, .paper-input-container-1 .input-content.paper-input-container .paper-input-input {
     font-size: 14px!important;
 }
-#appendMsg {
+#appendMsg, #appendMsgIssue {
     max-height: 91px;
     min-height: 0px;
     box-shadow: 1px 1px 5px #ccc;
@@ -1101,7 +1101,7 @@ paper-input#inputReq, #inputComment {
     overflow: auto;
     padding: 0px 6px;
 }
-#appendMsgInspectionFinding {
+#appendMsgInspectionFinding,#appendMsgInspectionFindingIssue {
     max-height: 91px;
     min-height: 0px;
     box-shadow: 1px 1px 5px #ccc;

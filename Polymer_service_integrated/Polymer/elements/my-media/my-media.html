@@ -1133,8 +1133,25 @@ return;
               //  alert(document.getElementById('requirementMsg'));
                // alert(document.getElementById('appendMsg'));
 
-                var comments= document.getElementById('requirementMsg').innerHTML;
-                var desc= document.getElementById('inputComment').value;
+               var comment;
+               var desc;
+               for(var i=0;i<this.issueMarkerServiceResponse.length;i++){
+                if(this.currentId == this.issueMarkerServiceResponse[i].id){
+                    comment = this.issueMarkerServiceResponse[i].comments;
+                    desc = this.issueMarkerServiceResponse[i].description;
+                    break;
+                }
+               }
+
+               if(comment == 'undefined'){
+                comment = [];
+               }
+               if(desc == 'undefined'){
+                desc = [];
+               }
+                var comments= comment;//document.getElementById('requirementMsg').innerHTML;
+                var desc= desc;//document.getElementById('inputCommentIssue').value;
+
 
                 var statusType=getStatusName(document.getElementById("statusType").selected);
                
