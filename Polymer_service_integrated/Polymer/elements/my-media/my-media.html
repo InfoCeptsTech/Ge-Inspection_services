@@ -814,6 +814,7 @@ return;
                 var expand = document.querySelector('#expandImg');
                 /*var altitude = document.querySelector('#imgAltitude');*/
                 expand.src = e.model.item.megaPath;
+                this.megaPath = e.model.item.megaPath;
                 var div = document.getElementById("dialog-box");
                 div.style.display = "block";
                 this.annoArray = [];
@@ -939,6 +940,8 @@ return;
 
                             // anno.activateSelector(a[i].src);
                         }
+                    }else{
+                        localStorage.setItem("annoSpanId", "0");
                     }
                     anno.addHandler('beforeAnnotationRemoved', function(event) {
                         if (localStorage.getItem("deleteCount") == "1") {
@@ -966,6 +969,8 @@ return;
                             debugger;
 
                             var spanId = Number(localStorage.getItem("annoSpanId")) + 1;
+                            event.id=spanId;
+                            console.log(event);
                             localStorage.setItem("annoSpanId", spanId);
                             var x = anno.getAnnotations();
                             var sc = localStorage.getItem("sc");
@@ -1095,7 +1100,7 @@ return;
             },
             saveDialog: function(e) {
                  debugger;
-                var el=document.getElementById('dialog-box');
+                var el=document.getElementById('expandImg');
                 var viewportOffset = el.getBoundingClientRect();
                
 
@@ -1107,13 +1112,13 @@ return;
                // alert(viewportOffset.y+"---"+viewportOffset.top);
                 
                 
-                //var xposition = viewportOffset.left;
-               // var yposition = viewportOffset.top;
-               var getAbsPosition = getPosition(el);
-               var abc = getAbsoluteOffsetFromBody(el);
-               //var abc = getAbsoluteOffsetFromRelative(divNeww);
-               var xposition = abc.left;
-               var yposition = abc.top;
+                var xposition = viewportOffset.left;
+                var yposition = viewportOffset.top;
+               // var getAbsPosition = getPosition(el);
+               // var abc = getAbsoluteOffsetFromBody(el);
+               // var abc = getAbsoluteOffsetFromRelative(divNeww);
+               // var xposition = abc.left;
+               // var yposition = abc.top;
                 var width = viewportOffset.width;
                 var height = viewportOffset.height;
 
@@ -1160,6 +1165,7 @@ return;
                 
                 //this.$.AjaxPost.body = {"id":"/Polymer/images/0001.jpg"};
                 this.$.AjaxPost.generateRequest();
+                this.$.issueAjax.generateRequest();
                 var div = document.getElementById("dialog-box");
                 div.style.display = "none";
                 var obj = {
