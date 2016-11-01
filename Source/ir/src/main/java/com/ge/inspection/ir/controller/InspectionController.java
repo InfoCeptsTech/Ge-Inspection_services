@@ -42,8 +42,8 @@ public class InspectionController {
 			String assetId=assetList.get(0);
 			List<InspectionModel> inspectionList=inspectionDao.getMediaDate(inspectorId,assetId);
 			
-			//Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionList.get(0).getInspectionId());
-			AssetModel[] assetModel=createJson(inspectorId,assetList,inspectionList,null,0,0);
+			Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionList.get(0).getInspectionId());
+			AssetModel[] assetModel=createJson(inspectorId,assetList,inspectionList,mediaList,0,0);
 			assetJson=JSONUtil.toJson(assetModel);	
 		}
 		
@@ -65,8 +65,8 @@ public class InspectionController {
 			mediaIndex++;
 		}
 		
-		//Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionList.get(0).getInspectionId());
-		AssetModel[] assetModel=createJson(inspectorId,assetList,inspectionList,null,assetIndex,mediaIndex);
+		Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionList.get(0).getInspectionId());
+		AssetModel[] assetModel=createJson(inspectorId,assetList,inspectionList,mediaList,assetIndex,mediaIndex);
 		String assetJson=JSONUtil.toJson(assetModel);
 		
 		return assetJson;
@@ -112,7 +112,6 @@ public class InspectionController {
 						duration=String.valueOf(startDurationList.get(0).getDateTime()).split(" ")[1]+"-"+String.valueOf(endDurationList.get(endDurationList.size()-1).getDateTime()).split(" ")[1];	
 					}*/
 					inspectionModel.setMediaModel(mediaList);
-					
 				
 			 }
 				List<IssueCount> issueCountList=new ArrayList<IssueCount>();

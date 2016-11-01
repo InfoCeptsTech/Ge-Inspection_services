@@ -25,6 +25,7 @@ import com.ge.inspection.ir.model.MediaModel;
 import com.ge.inspection.ir.model.Metadata;
 import com.ge.inspection.ir.repository.immuta.InspectionDtlRepository;
 import com.ge.inspection.ir.rest.ImageCallable;
+import com.ge.inspection.ir.util.ImageUtil;
 
 @Component("inspectionDao")
 public class InspectionDaoImpl implements InspectionDao {
@@ -122,7 +123,7 @@ public class InspectionDaoImpl implements InspectionDao {
 		Set<MediaModel> phaseSet=new HashSet<MediaModel>();
 		ExecutorService executor = Executors.newFixedThreadPool(10);
     	List<Future<Map<String,String>>> list = new ArrayList<Future<Map<String,String>>>();
-    	Map<String,String> allImgMap=new HashMap<String, String>();
+    	//Map<String,String> allImgMap=new HashMap<String, String>();
 		
 		for(InspectionDtls inspectionDtls:inspectionDtlsList){
 			phaseSet.add(new MediaModel(inspectionDtls.getInspectionPhaseId()));
@@ -130,65 +131,72 @@ public class InspectionDaoImpl implements InspectionDao {
 		
 		for(MediaModel phase:phaseSet){
 					List<ImageModel> imageModelList=new ArrayList<ImageModel>();
-					int index=0;
+					//int index=0;
 					for(InspectionDtls inspectionDtls:inspectionDtlsList){
 						if(inspectionDtls.getInspectionPhaseId().equalsIgnoreCase(phase.getTitle())){
 							
 							//String compPath=ImageUtil.storeAndCompressedFile(mediaLocation+inspectionDtls.getBlobId(), compMediaLocation);
 							File file=new File(inspectionDtls.getBlobId());
 							String id=file.getName();
-							System.out.println("file name : "+id);
+							//System.out.println("file name : "+id);
 							List<Metadata> metadataList=new ArrayList<Metadata>();
 							
 							Metadata metadata=new Metadata("Altitude",String.valueOf(inspectionDtls.getLocation_globalPosition_altitude()));
 							metadataList.add(metadata);
 							
-							String imgPath=inspectionDtls.getBlobId();
-				    		ImageCallable callable =new ImageCallable(imgPath,authenticateUrl,imageUrl,username,password,mediaLocation);
-				    		Future<Map<String,String>> future = executor.submit(callable);
-				    		list.add(future);
+							if(!ImageUtil.isFilePresent(mediaLocation+"/Polymer/images/"+file.getName()) ||
+									!ImageUtil.isFilePresent(mediaLocation+"/Polymer/compressed/"+file.getName())){
+							
+								String imgPath=inspectionDtls.getBlobId();
+					    		ImageCallable callable =new ImageCallable(imgPath,authenticateUrl,imageUrl,username,password,mediaLocation);
+					    		Future<Map<String,String>> future = executor.submit(callable);
+					    		list.add(future);
+							}
 				    		 
 							//byte[] imgByte=ImageUtil.getImageBinary(mediaLocation+inspectionDtls.getBlobId());
 							
-							imageModelList.add(new ImageModel(id.split("\\.")[0],inspectionDtls.getBlobId(), "/Polymer/images/"+id,inspectionDtls.getInspectionStop(),inspectionDtls.getInspectionStart(),metadataList,""));
-							index++;
+							imageModelList.add(new ImageModel(id.split("\\.")[0],"/Polymer/compressed/"+id, "/Polymer/images/"+id,inspectionDtls.getInspectionStop(),inspectionDtls.getInspectionStart(),metadataList,""));
+							//index++;
 						}
 					}
 					phase.setImageModel(imageModelList);
 		}
 		for(Future<Map<String,String>> future : list){
    		 try {
+   			 
+   			future.get();
+   			/*
    			 Map<String,String> imgMap=future.get();
    			 allImgMap.putAll(imgMap);
+   			 */
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
    		 
-   		 //System.out.println("KEYSET ::::::::::::::"+allImgMap.keySet());
    	 }
 	//	System.out.println("---------------before executor shutdown------------------");
    	 executor.shutdown();
-   	
+   	/*
    	for(MediaModel phase:phaseSet){
    		for(InspectionDtls inspectionDtls:inspectionDtlsList){
 			if(inspectionDtls.getInspectionPhaseId().equalsIgnoreCase(phase.getTitle())){
 		   		List<ImageModel> imageModelList=phase.getImageModel();
 		   		
-		   		for(int i=0;i<imageModelList.size();i++){
-		   			ImageModel imageModel=imageModelList.get(i);
+		   		//for(int i=0;i<imageModelList.size();i++){
+		   		//	ImageModel imageModel=imageModelList.get(i);
 		   		//	System.out.println("<<<<<<<<<<<<<<<<<<<<<<setting image binary>>>>>"+imageModel.getMegaPath()+">>>>>>>>>>>>>>>>>>>>>>>>"+imageModel.getMegaPath().length());
 		   		  
 		   			//System.out.println("BINARY ::::::::::::::"+allImgMap.get(imageModel.getId()));
 		   			//imageModelList.get(i).setImgBinary(allImgMap.get(imageModel.getId()));
-		   		}
-		   		phase.setImageModel(imageModelList);
+		   		//}
+		   		//phase.setImageModel(imageModelList);
 			}
 			
    		}
    		
    	    phaseSet.add(phase);
      }
-   	  
+   	  */
 		return phaseSet;
 	}
 	
