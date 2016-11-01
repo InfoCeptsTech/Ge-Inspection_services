@@ -147,7 +147,7 @@ input:focus ~ label, input.used ~ label {
      
       <input type="Password" name="pwd" placeholder="Password"  id="password" required auto-validate error-message="username required!">
 
-      <button type="submit" class="button buttonBlue" raised on-click="submitForm">LOGIN </button></br>
+      <button type="button" class="button buttonBlue" raised on-click="submitForm">LOGIN </button></br>
       <span id="error"  style="font-size: 16px;"></span>
       <!-- <span style="font-size: 15px;float: right;color:#099fc3">Forgot password?</span>-->
    </form>
@@ -239,8 +239,12 @@ input:focus ~ label, input.used ~ label {
 	   var access_token=data.detail.response.access_token;
      
     
-	 
+	   var xx=document.getElementById("basic1");
+      xx.style.display="none";
+        localStorage.setItem('inspectorId', username);
+      document.querySelector('app-router').go('/my-drone');
       },
+
     submitForm:function() {
    debugger;
 	var urlPost="http://localhost:8080/ia-0.0.1/oauth/token?grant_type=password";
@@ -248,20 +252,22 @@ input:focus ~ label, input.used ~ label {
 	username=document.getElementById('username').value;
 	password=document.getElementById('password').value;
 	document.getElementById('loginEndpoint').url=urlPost+"&username="+username+"&password="+password;
- 
+// document.getElementById('loginEndpoint').generateRequest();
+ // document.getElementById('loginEndpoint').url=urlPost;
+  
 
    if(username !=="" && password!=""){ 
+    
       var xx=document.getElementById("basic1");
       xx.style.display="none";
         localStorage.setItem('inspectorId', username);
       document.querySelector('app-router').go('/my-drone');
+      
    }
    else
     {alert("xdfvdgvb");} 
   
-	//document.getElementById('loginEndpoint').generateRequest();
-	document.getElementById('loginEndpoint').url=urlPost;
-   sleep(500);
+	
    }
    
   

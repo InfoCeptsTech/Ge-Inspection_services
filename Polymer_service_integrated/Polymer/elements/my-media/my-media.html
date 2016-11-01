@@ -68,7 +68,7 @@
             width: 96%;
         }
         </style>
-        <iron-ajax
+         <iron-ajax
             id="AjaxPost"
             url="/ir-0.0.1/inspection/addIssue"
             method="POST"
@@ -88,9 +88,9 @@
             on-error="_handleAjaxPostError"
             >
         </iron-ajax>
-       <drones-data-service id="ajax" url="{{url}}" drones-service-response="{{droneServiceResponse}}" >
+        <drones-data-service id="ajax" url="{{url}}" drones-service-response="{{droneServiceResponse}}">
         </drones-data-service>
-        <iron-ajax id="issueAjax" url="{{markerurl}}" handle-as="json" on-response="handleResponseIssueMarker"></iron-ajax>
+        <iron-ajax auto id="issueAjax" url="{{markerurl}}" handle-as="json" on-response="handleResponseIssueMarker"></iron-ajax>
         <!-- <iron-ajax auto id="annotoriousAjax" url="/Polymer/annotorious.json" handle-as="json" on-response="handleResponseAnnotorious"></iron-ajax> -->
         <div class="filters">
             <paper-dropdown-menu id="filters" on-iron-select="_itemSelected" label="Filter By:">
@@ -117,7 +117,7 @@
                             <div class="modal-body">
                                 <template is="dom-repeat" items="{{item.img}}">
                                     <div class="abc" id="abc">
-                                        <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="{{item.megaPath}}" class="phases-img" id="{{item.id}}">
+                                        <paper-icon-button raised on-dblclick="toggleDialog" on-tap="addQuantity" src="{{item.miniPath}}" class="phases-img" id="{{item.id}}">
                                             <!--  <img id="{{item.id}}" on-tap="addQuantity" raised class="phases-img" src="{{item.src}}"> -->
                                         </paper-icon-button>
                                         <!--  <img class$="{{item.class}}" src="{{item.issuePath}}"> -->
@@ -136,7 +136,7 @@
                             </span>
                 <span>
                                  <paper-dropdown-menu>
-                                <paper-listbox class="dropdown-content" id="defectType" selected="0">
+                                <paper-listbox class="dropdown-content" id="defectType"  selected="0">
                                     <paper-item>Corrosion</paper-item>
                                     <paper-item>Thinning</paper-item>
                                     <paper-item>Stress cracking</paper-item>
@@ -324,7 +324,7 @@
                     type: Array,
                     value: []
                 },
-                  megaPath:{
+                megaPath:{
                     type:String,
                     value:''
                 },
@@ -374,7 +374,7 @@
                 },
                 url: {
                     type: String,
-                    value: ''
+                    value: '/Polymer/drones.json'
                 },
                 annoArray: {
                     type: Array,
@@ -419,7 +419,17 @@
                 }
 
             },
-            ready: function(){
+            _onClick: function() {
+                var button = document.getElementById('iron-icon'),
+                    collapse = document.getElementById('collapse')
+                collapse.toggle()
+                if (collapse.opened) {
+                    Polymer.dom(button).setAttribute('icon', 'remove')
+                } else if (!collapse.opened) {
+                    Polymer.dom(button).setAttribute('icon', 'add')
+                }
+            },
+             ready: function(){
                //  alert(" in ready-----------");
                      title=localStorage.getItem('assetTitle');
                      inspectorId=localStorage.getItem('inspectorId');
@@ -441,16 +451,6 @@
                   //  alert(this.url);
 
                      
-            },
-            _onClick: function() {
-                var button = document.getElementById('iron-icon'),
-                    collapse = document.getElementById('collapse')
-                collapse.toggle()
-                if (collapse.opened) {
-                    Polymer.dom(button).setAttribute('icon', 'remove')
-                } else if (!collapse.opened) {
-                    Polymer.dom(button).setAttribute('icon', 'add')
-                }
             },
             _hideShow: function() {
                 //document.getElementById("appendMsg").style.height = "auto";
@@ -529,8 +529,7 @@ for (var i = 0; i < this.dronesServiceResponse.length; i++) {
                  
             },
              _handleAjaxPostResponse:function(){
-                 var div = document.getElementById("dialog-box");
-                div.style.display = "none";
+                 
                                
                 var inspectionId=localStorage.getItem("inspectionId");
                 var assetId=localStorage.getItem("assetId");
@@ -540,34 +539,14 @@ for (var i = 0; i < this.dronesServiceResponse.length; i++) {
                 document.getElementById('issueAjax').url="/ir-0.0.1/inspection/getIssueMarker/inspectorId="+inspectorId;
 
                 document.getElementById('issueAjax').generateRequest();
+                var div = document.getElementById("dialog-box");
+                div.style.display = "none";
                 
             },
             _handleAjaxPostError:function(){
              //   alert("error");
             },
-            // handleResponseAnnotorious: function() {
-            //     //debugger;
-            //     this.annotoriousResponse = this.$.annotoriousAjax.lastResponse;
-            // },
-            addQuantity: function(e) {
-                //debugger;
-                var target = e.model.item.id;
-                var id = document.getElementById(target),
-                    style = window.getComputedStyle(id),
-                    border = style.getPropertyValue('border'),
-                    borderNone = "0px none rgb(0, 0, 0)";
-                if (border.toString() == borderNone) {
-                    id.style.border = "4px solid #049FCF";
-                    this.idArr.push(target);
-                } else {
-                    id.style.border = "none";
-                    var index = this.idArr.indexOf(target);
-                    this.idArr.splice(index, 1);
-                }
-                // console.log(this.stringify(this.dronesServiceResponse));
-                //  console.log(this.dronesServiceResponse);
-            },
-              addComments:function(e){
+            addComments:function(e){
                 //debugger;
                 var inspection;
                 var phase;
@@ -645,7 +624,29 @@ for (var i = 0; i < this.dronesServiceResponse.length; i++) {
                     alert('Please select image');
                 }
             },
-             editSubmitClick: function(e) {
+            // handleResponseAnnotorious: function() {
+            //     //debugger;
+            //     this.annotoriousResponse = this.$.annotoriousAjax.lastResponse;
+            // },
+            addQuantity: function(e) {
+                //debugger;
+                var target = e.model.item.id;
+                var id = document.getElementById(target),
+                    style = window.getComputedStyle(id),
+                    border = style.getPropertyValue('border'),
+                    borderNone = "0px none rgb(0, 0, 0)";
+                if (border.toString() == borderNone) {
+                    id.style.border = "4px solid #049FCF";
+                    this.idArr.push(target);
+                } else {
+                    id.style.border = "none";
+                    var index = this.idArr.indexOf(target);
+                    this.idArr.splice(index, 1);
+                }
+                // console.log(this.stringify(this.dronesServiceResponse));
+                //  console.log(this.dronesServiceResponse);
+            },
+            editSubmitClick: function(e) {
                 //debugger;
                 var inspection;
                 var phase;
@@ -809,7 +810,6 @@ return;
                 //     anno.removeAnnotation(this.annoArray);
                 // }
                 this.currentId = e.model.item.id;
-                 this.megaPath=e.model.item.megaPath;
                 var dialog = document.querySelector('#dialog');
                 var expand = document.querySelector('#expandImg');
                 /*var altitude = document.querySelector('#imgAltitude');*/
@@ -1094,23 +1094,30 @@ return;
 
             },
             saveDialog: function(e) {
-
-                var el=document.getElementById('expandImg');
-
-                var viewportOffset = el.getBoundingClientRect();
                  debugger;
+                var el=document.getElementById('dialog-box');
+                var viewportOffset = el.getBoundingClientRect();
+               
+
+                
+                
                 // these are relative to the viewport, i.e. the window
 
                // alert(viewportOffset.x+"---"+viewportOffset.left);
                // alert(viewportOffset.y+"---"+viewportOffset.top);
                 
                 
-                var xposition = viewportOffset.left;
-                var yposition = viewportOffset.top;
+                //var xposition = viewportOffset.left;
+               // var yposition = viewportOffset.top;
+               var getAbsPosition = getPosition(el);
+               var abc = getAbsoluteOffsetFromBody(el);
+               //var abc = getAbsoluteOffsetFromRelative(divNeww);
+               var xposition = abc.left;
+               var yposition = abc.top;
                 var width = viewportOffset.width;
                 var height = viewportOffset.height;
 
-              
+               
 
                 var id=this.megaPath;
                                
@@ -1153,11 +1160,8 @@ return;
                 
                 //this.$.AjaxPost.body = {"id":"/Polymer/images/0001.jpg"};
                 this.$.AjaxPost.generateRequest();
-              
-               /*
                 var div = document.getElementById("dialog-box");
                 div.style.display = "none";
-                */
                 var obj = {
                     "id": this.currentId,
                     "annotation": anno.getAnnotations()
@@ -1504,6 +1508,87 @@ return;
               }
 
             }
+            function getPosition(el){
+    debugger;
+    var el2 = el;
+    var curtop = 0;
+    var curleft = 0;
+    el2.offsetLeft = 14;
+    el2.offsetTop = 75;
+    if (document.getElementById || document.all) {
+        do  {
+            curleft += el.offsetLeft-el.scrollLeft;
+            curtop += el.offsetTop-el.scrollTop;
+            el = el.offsetParent;
+            el2 = el2.parentNode;
+            while (el2 != el) {
+                curleft -= el2.scrollLeft;
+                curtop -= el2.scrollTop;
+                el2 = el2.parentNode;
+            }
+        } while (el.offsetParent);
+
+    } else if (document.layers) {
+        curtop += el.y;
+        curleft += el.x;
+    }
+    return {"x":curtop, "y":curleft};
+}
+
+getAbsoluteOffsetFromGivenElement = function( el, relativeEl )
+{   // finds the offset of el from relativeEl
+    var _x = 0;
+    var _y = 0;
+    while( el && el != relativeEl && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) )
+    {
+        _x += el.offsetLeft - el.scrollLeft + el.clientLeft;
+        _y += el.offsetTop - el.scrollTop + el.clientTop;
+        el = el.offsetParent;
+    }
+    return { top: _y, left: _x };
+}
+getAbsoluteOffsetFromRelative = function( el )
+{   // finds the offset of el from the first parent with position: relative
+    var _x = 0;
+    var _y = 0;
+    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) )
+    {
+        _x += el.offsetLeft - el.scrollLeft + el.clientLeft;
+        _y += el.offsetTop - el.scrollTop + el.clientTop;
+        el = el.offsetParent;
+        if (el != null)
+        {
+            if (getComputedStyle !== 'undefined')
+                valString = getComputedStyle(el, null).getPropertyValue('position');
+            else
+                valString = el.currentStyle['position'];
+            if (valString === "relative")
+                el = null;
+        }
+    }
+    return { top: _y, left: _x };
+}
+function getAbsoluteOffsetFromBody( el )
+{   // finds the offset of el from the body or html element
+    var _x = 0;
+    var _y = 0;
+    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) )
+    {
+        _x += el.offsetLeft - el.scrollLeft + el.clientLeft;
+        _y += el.offsetTop - el.scrollTop + el.clientTop;
+        el = el.offsetParent;
+    }
+    return { top: _y, left: _x };
+}
+
+    </script>
+    <!-- <script>
+    document.addEventListener('WebComponentsReady', function() {
+        var ratings = document.querySelector('#ratings');
+        ratings.addEventListener('value-change', function() {
+            document.querySelector('#ratingsLabel').textContent = ratings.value;
+        });
+    });
     </script>
     <!-- <script>
     document.addEventListener('WebComponentsReady', function() {
