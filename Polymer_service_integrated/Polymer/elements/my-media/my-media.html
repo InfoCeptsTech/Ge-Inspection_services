@@ -113,7 +113,7 @@
                     <div class="image-gall">
                         <template is="dom-repeat" items="{{item.phase}}">
                            <!--  <span class="phase-title" id="{{item.title}}">{{item.title}}<label class="phase-title">0 issues</label><paper-checkbox class="paper-checkbox">NEED REVIEW</paper-checkbox></span> -->
-                           <span class="phase-title">{{item.title}}<label class="phase-title">0 issues</label><input type="checkbox" class="checkit" id="check{{index}}"  on-click="_yesno" /><label for="smoking" name="yesnos" id="lable{{index}}">NEED REVIEW</label></span>
+                           <span class="phase-title">{{item.title}}<label class="phase-title" id="{{item.title}}>0 issues</label><input type="checkbox" class="checkit" id="check{{index}}"  on-click="_yesno" /><label for="smoking" name="yesnos" id="lable{{index}}">NEED REVIEW</label></span>
                             <br/>
                             <div class="modal-body">
                                 <template is="dom-repeat" items="{{item.img}}">
