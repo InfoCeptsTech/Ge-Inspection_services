@@ -1,10 +1,6 @@
 package com.ge.inspection.ir.controller;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -15,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ge.inspection.ir.dao.InspectionDao;
+import com.ge.inspection.ir.dao.IssueDao;
 import com.ge.inspection.ir.model.AssetModel;
-import com.ge.inspection.ir.model.DurationModel;
-import com.ge.inspection.ir.model.ImageModel;
 import com.ge.inspection.ir.model.InspectionModel;
+import com.ge.inspection.ir.model.IssueCount;
 import com.ge.inspection.ir.model.MediaModel;
 import com.ge.inspection.ir.util.JSONUtil;
 
@@ -27,6 +23,9 @@ public class InspectionController {
  
 	@Autowired
 	private InspectionDao inspectionDao;
+	
+	@Autowired
+	private IssueDao issueDao;
 	
 	@RequestMapping(value = "/inspection/getInspection/inspectorId={inspectorId}", method = RequestMethod.GET)
 	public String getAssets(@PathVariable String inspectorId){
@@ -38,13 +37,16 @@ public class InspectionController {
 	@RequestMapping(value = "/inspection/getAsset/inspectorId={inspectorId}", method = RequestMethod.GET)
 	public String getAsset(@PathVariable String inspectorId){
 		List<String> assetList=inspectionDao.getAsset(inspectorId);
-		String assetId=assetList.get(0);
-		List<Timestamp> dateList=inspectionDao.getMediaDate(inspectorId,assetId);
-		DateFormat df = new SimpleDateFormat("MMM dd yyyy");
-		String inspectionStart= df.format(dateList.get(0));
-		Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionStart);
-		AssetModel[] assetModel=createJson(assetList,dateList,mediaList,0,0);
-		String assetJson=JSONUtil.toJson(assetModel);
+		String assetJson="";
+		if(assetList.size()>0){
+			String assetId=assetList.get(0);
+			List<InspectionModel> inspectionList=inspectionDao.getMediaDate(inspectorId,assetId);
+			
+			//Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionList.get(0).getInspectionId());
+			AssetModel[] assetModel=createJson(inspectorId,assetList,inspectionList,null,0,0);
+			assetJson=JSONUtil.toJson(assetModel);	
+		}
+		
 		return assetJson;
 	}
 	
@@ -54,78 +56,88 @@ public class InspectionController {
 		List<String> assetList=inspectionDao.getAsset(inspectorId);
 		int assetIndex=assetList.indexOf(assetId);
 		
-		List<Timestamp> dateList=inspectionDao.getMediaDate(inspectorId,assetId);
-		DateFormat df = new SimpleDateFormat("MMM dd yyyy");
-		String inspectionStart= df.format(dateList.get(0));
-		Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionStart);
-		AssetModel[] assetModel=createJson(assetList,dateList,mediaList,assetIndex,0);
+		List<InspectionModel> inspectionList=inspectionDao.getMediaDate(inspectorId,assetId);
+		int mediaIndex=0;
+		for(InspectionModel inspectionModel:inspectionList){
+			if(inspectionModel.getInspectionId().equals(inspectionList.get(0).getInspectionId())){
+				break;
+			}
+			mediaIndex++;
+		}
+		
+		//Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionList.get(0).getInspectionId());
+		AssetModel[] assetModel=createJson(inspectorId,assetList,inspectionList,null,assetIndex,mediaIndex);
 		String assetJson=JSONUtil.toJson(assetModel);
 		
 		return assetJson;
 	}
 	
-	@RequestMapping(value = "/inspection/getMedia/inspectorId={inspectorId}&assetId={assetId}&inspectionStart={inspectionStart}", method = RequestMethod.GET)
-	public String getMedia(@PathVariable String inspectorId,@PathVariable String assetId,@PathVariable String inspectionStart){
+	@RequestMapping(value = "/inspection/getMedia/inspectorId={inspectorId}&assetId={assetId}&inspectionId={inspectionId}", method = RequestMethod.GET)
+	public String getMedia(@PathVariable String inspectorId,@PathVariable String assetId,@PathVariable String inspectionId){
 		//Set<MediaModel> assetList=inspectionDao.getMedia(inspectorId,assetId,inspectionStart);
 		
 		List<String> assetList=inspectionDao.getAsset(inspectorId);
 		int assetIndex=assetList.indexOf(assetId);
 		
-		List<Timestamp> dateList=inspectionDao.getMediaDate(inspectorId,assetId);
-		List<String> inspectionDateList=new ArrayList<String>();
-		
-		DateFormat df = new SimpleDateFormat("MMM dd yyyy");
-		for(Date date:dateList){
-			inspectionDateList.add(df.format(date));
+		List<InspectionModel> inspectionList=inspectionDao.getMediaDate(inspectorId,assetId);
+		int mediaIndex=0;
+		for(InspectionModel inspectionModel:inspectionList){
+			if(inspectionModel.getInspectionId().equals(inspectionId)){
+				break;
+			}
+			mediaIndex++;
 		}
-		int mediaIndex=inspectionDateList.indexOf(inspectionStart);
 		
-		Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionStart);
-		AssetModel[] assetModel=createJson(assetList,dateList,mediaList,assetIndex,mediaIndex);
+		Set<MediaModel> mediaList=inspectionDao.getMedia(inspectorId,assetId,inspectionId);
+		AssetModel[] assetModel=createJson(inspectorId,assetList,inspectionList,mediaList,assetIndex,mediaIndex);
 		String assetJson=JSONUtil.toJson(assetModel);
 		
 		return assetJson;
 	}
 	
 	
-	private AssetModel[] createJson(List<String> assetList,List<Timestamp> dateList,Set<MediaModel> mediaList,int assetIndex,int mediaIndex){
+	private AssetModel[] createJson(String inspectorId,List<String> assetList,List<InspectionModel> inspectionModelList,Set<MediaModel> mediaList,int assetIndex,int mediaIndex){
 		
 		AssetModel[] assetModelArray = new AssetModel[assetList.size()];
 		int assetIndexLocal=0;
+		List<Object[]>  issueCountObj=issueDao.getIssueCount(inspectorId);
 		for(String asset:assetList){
-			 List<InspectionModel> inspectionModelList=new ArrayList<InspectionModel>();
-			 
+			AssetModel assetModel=null;
 			 int mediaIndexLocal=0;
-			 for(Timestamp time:dateList){
-				if(mediaIndexLocal==mediaIndex&&assetIndex==assetIndexLocal){
-					String duration="";
-					List<DurationModel> startDurationList=new ArrayList<DurationModel>();
-					List<DurationModel> endDurationList=new ArrayList<DurationModel>();
-					for(MediaModel mediaModel:mediaList){
-						for(ImageModel imageModel:mediaModel.getImageModel()){
-							startDurationList.add(new DurationModel(imageModel.getInspectionStartDate()));
-							endDurationList.add(new DurationModel(imageModel.getInspectionEndDate()));
-						}
-					}
+			 for(InspectionModel inspectionModel:inspectionModelList){
+				if(mediaIndexLocal==mediaIndex){
+					
+					/*
 					if(startDurationList.get(0)!=null && endDurationList.get(endDurationList.size()-1)!=null){
 						duration=String.valueOf(startDurationList.get(0).getDateTime()).split(" ")[1]+"-"+String.valueOf(endDurationList.get(endDurationList.size()-1).getDateTime()).split(" ")[1];	
-					}
-					inspectionModelList.add(new InspectionModel(time, duration, mediaList));
-				}else{
-					inspectionModelList.add(new InspectionModel(time, null, null));
-				}
-				mediaIndexLocal++;
+					}*/
+					inspectionModel.setMediaModel(mediaList);
+					
+				
 			 }
-			 AssetModel assetModel=null;
+				List<IssueCount> issueCountList=new ArrayList<IssueCount>();
+				for(Object obj:issueCountObj){
+					//System.out.println(obj);
+					Object[] assetObj=(Object[]) obj;
+					if(obj!=null && assetObj[0].equals(asset)){
+						if(!assetObj[1].equals(null) && !assetObj[1].equals("null")){
+							IssueCount issueCount=new IssueCount(String.valueOf(assetObj[1]),String.valueOf(assetObj[2]));
+							issueCountList.add(issueCount);
+						}
+						
+					}
+				}
 			if(assetIndexLocal==assetIndex){
-				assetModel=new AssetModel(asset,inspectionModelList);
+				assetModel=new AssetModel(String.valueOf(mediaIndexLocal),asset,inspectionModelList,issueCountList);
 			}else{
-				assetModel=new AssetModel(asset,null);
+				assetModel=new AssetModel(String.valueOf(mediaIndexLocal),asset,null,issueCountList);
 			}
-			assetModelArray[assetIndexLocal]=assetModel;
-			assetIndexLocal++;
-			
-		}
-		return assetModelArray;
+			mediaIndexLocal++;
+		  }
+		assetModelArray[assetIndexLocal]=assetModel;
+		assetIndexLocal++;
+	
 	}
+		return assetModelArray;
+}
 }

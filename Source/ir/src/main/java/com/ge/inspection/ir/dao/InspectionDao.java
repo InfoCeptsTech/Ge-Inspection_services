@@ -1,10 +1,10 @@
 package com.ge.inspection.ir.dao;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
 
 import com.ge.inspection.ir.model.AssetModel;
+import com.ge.inspection.ir.model.InspectionModel;
 import com.ge.inspection.ir.model.MediaModel;
 
 public interface InspectionDao {
@@ -13,8 +13,8 @@ public interface InspectionDao {
 	
 	public List<String>  getAsset(String inspectorId);
 	
-	public List<Timestamp>  getMediaDate(String inspectorId,String assetId);
+	public List<InspectionModel>  getMediaDate(String inspectorId,String assetId);
 	
-	public Set<MediaModel>  getMedia(String inspectorId,String assetId,String inspectionStart);
+	public Set<MediaModel>  getMedia(String inspectorId,String assetId,String inspectionId);
  
 }

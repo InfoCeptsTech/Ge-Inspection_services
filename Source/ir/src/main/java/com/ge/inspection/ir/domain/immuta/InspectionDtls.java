@@ -5,43 +5,59 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
 
 @Entity
+@Table(name="vertical_inspection_data")
 public class InspectionDtls {
   @Id
-  @Column(updatable = false, nullable = false)
+  @Column(updatable = false, nullable = false, name="blobid")
   @Size(min = 0, max = 50)	
   private String blobId;
+  @Column(name = "visibility")
   private String visibility;
+  @Column(name = "facilityid")
   private String facilityId;
+  @Column(name = "assetid")
   private String assetId;
+  @Column(name = "inspectionid")
   private String inspectionId;
+  @Column(name = "inspectorid")
   private String inspectorId;
+  @Column(name = "inspectiontype")
   private String inspectionType;
   
-  @Column(columnDefinition= "TIMESTAMP WITH TIME ZONE")
+  @Column(columnDefinition= "TIMESTAMP WITH TIME ZONE", name="inspectionstart")
   @Temporal(TemporalType.TIMESTAMP)
   private Date inspectionStart;
   
   
-  @Column(columnDefinition= "TIMESTAMP WITH TIME ZONE")
+  @Column(columnDefinition= "TIMESTAMP WITH TIME ZONE", name="inspectionstop")
   @Temporal(TemporalType.TIMESTAMP)
   private Date inspectionStop;
   
-  @Column(columnDefinition= "TIMESTAMP WITH TIME ZONE")
+  @Column(columnDefinition= "TIMESTAMP WITH TIME ZONE", name="timestamp")
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp;
-  
+  @Column(name = "inspectionphaseid")
   private String inspectionPhaseId;
+  @Column(name = "requiredresolution")
   private int requiredResolution;
+  @Column(name = "requiredfieldofview")
   private int requiredFieldOfView;
+  @Column(name = "sensor_name")
   private String sensor_name;
+  @Column(name = "sensor_sensortype")
   private String sensor_sensorType;
+  @Column(name = "sensor_sensormode")
   private String sensor_sensorMode;
+  @Column(name = "inspectionpointid")
   private String inspectionPointId;
+  @Column(name = "location_globalPosition_altitude")
+  private Double location_globalPosition_altitude;
   
   
 public String getBlobId() {
@@ -146,6 +162,13 @@ public String getInspectionPointId() {
 }
 public void setInspectionPointId(String inspectionPointId) {
 	this.inspectionPointId = inspectionPointId;
+}
+public Double getLocation_globalPosition_altitude() {
+	return location_globalPosition_altitude;
+}
+public void setLocation_globalPosition_altitude(
+		Double location_globalPosition_altitude) {
+	this.location_globalPosition_altitude = location_globalPosition_altitude;
 }
   
   
