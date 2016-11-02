@@ -18,7 +18,7 @@
 
   <!-- Because this project uses vulcanize this should be your only html import
        in this file. All other imports should go in elements.html -->
-  <link rel="import" href="/Polymer/elements/elements.html">
+  <link rel="import" href="/elements/elements.html">
 
   <!-- For shared styles, shared-styles.html import in elements.html -->
   <style is="custom-style" include="shared-styles">
@@ -38,8 +38,8 @@ paper-drawer-panel{
     width: 100%;
     height: 100%;
     z-index: 9999;
-   /* background: url('/Polymer/images/Preloader_2.gif') 50% 50% no-repeat rgb(249,249,249);*/
-    background: url('/Polymer/images/load.gif') 50% 50% no-repeat #fff;
+   /* background: url('/images/Preloader_2.gif') 50% 50% no-repeat rgb(249,249,249);*/
+    background: url('/images/load.gif') 50% 50% no-repeat #fff;
 }
 </style>
 
@@ -51,7 +51,7 @@ paper-drawer-panel{
    <template is="dom-bind" id="app">
    <dash-login></dash-login>
    <app-router>
-       <app-route path="/my-drone" import="/Polymer/elements/my-drone/my-drone.html"></app-route>
+       <app-route path="/my-drone" import="/elements/my-drone/my-drone.html"></app-route>
    </app-router>
    </template>
 
