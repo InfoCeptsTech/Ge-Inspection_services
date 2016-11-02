@@ -825,8 +825,17 @@
                         this.commentArray = this.issueMarkerServiceResponse[i].comments;
                         this.commentArrayInspectionFinding = this.issueMarkerServiceResponse[i].description;
                         this.annoArray = this.issueMarkerServiceResponse[i].annotation;
-                        expand.style.width = this.issueMarkerServiceResponse[i].width + "px";
-                        expand.style.height = this.issueMarkerServiceResponse[i].height + "px";
+                        if(this.issueMarkerServiceResponse[i].width != "" && this.issueMarkerServiceResponse[i].width != undefined){
+                             expand.style.width = this.issueMarkerServiceResponse[i].width + "px";
+                        }else{
+                            expand.style.width = 814.5+"px";
+                        }
+                       if(this.issueMarkerServiceResponse[i].height != "" && this.issueMarkerServiceResponse[i].height != undefined){
+                         expand.style.height = this.issueMarkerServiceResponse[i].height + "px";
+                       }else{
+                        expand.style.height = 450+"px";
+                       }
+                       
                         break;
 
                     }
