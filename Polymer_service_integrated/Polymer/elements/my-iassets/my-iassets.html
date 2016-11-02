@@ -1,4 +1,4 @@
-<link rel="import" href="/Polymer/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 
 <dom-module id="my-iassets">
   <template is="dom-bind">
@@ -60,14 +60,14 @@
             var assetId=localStorage.getItem('assetTitle');
              var inspectorId=localStorage.getItem('inspectorId');
            
-            this.url="/ir-0.0.1/inspection/getIssueDate/inspectorId="+inspectorId+"&assetId="+assetId;
+            this.url="https://dashboard.immuta.io/ir-0.0.1/inspection/getIssueDate/inspectorId="+inspectorId+"&assetId="+assetId;
 
           },
           handelIssueClick :function(){
        // alert("in issue click");
           var assetId=localStorage.getItem('assetTitle');
             
-            this.url="/ir-0.0.1/inspection/getIssues/inspectorId="+inspectorId+"&assetId="+assetId;
+            this.url="https://dashboard.immuta.io/ir-0.0.1/inspection/getIssues/inspectorId="+inspectorId+"&assetId="+assetId;
           //  alert(this.url);
        }, 
 
