@@ -1,5 +1,5 @@
 <!-- Polymer web component used to display the assets list -->
-<link rel="import" href="/Polymer/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 <dom-module id="my-drone">
     <template is="dom-bind">
         <style>
@@ -84,12 +84,12 @@
                             </iron-selector>
                             <div id="media">
                                 <app-router>
-                                    <app-route path="/my-assets" import="/Polymer/elements/my-assets/my-assets.html"></app-route>
+                                    <app-route path="/my-assets" import="/elements/my-assets/my-assets.html"></app-route>
                                 </app-router>
                             </div>
                             <div id="issues">
                                 <app-router>
-                                    <app-route path="/my-iassets" import="/Polymer/elements/my-iassets/my-iassets.html"></app-route>
+                                    <app-route path="/my-iassets" import="/elements/my-iassets/my-iassets.html"></app-route>
                                 </app-router>
                             </div>
                         </div>
@@ -111,12 +111,12 @@
                                 </div>
                             </paper-toolbar>
                             <app-router>
-                                <app-route path="/my-media" import="/Polymer/elements/my-media/my-media.html"></app-route>
+                                <app-route path="/my-media" import="/elements/my-media/my-media.html"></app-route>
                             </app-router>
                         </div>
                         <div>
                             <app-router>
-                                 <app-route path="/my-issues" import="/Polymer/elements/my-issues/my-issues.html"></app-route>
+                                 <app-route path="/my-issues" import="/elements/my-issues/my-issues.html"></app-route>
                             </app-router>
                             <!-- <my-issues></my-issues> -->
                         </div>
@@ -235,7 +235,7 @@
                     this.$.ajaxDrone.url = this.url;
                 } else {
                    
-                    this.url = "http://localhost:8080/ir-0.0.1/inspection/getMediaDate/inspectorId=1&assetId="+title;
+                    this.url = "https://dashboard.immuta.io/ir-0.0.1/inspection/getMediaDate/inspectorId=1&assetId="+title;
                     this.$.ajaxDrone.url = this.url;
                 }
                 */
@@ -248,7 +248,7 @@
                 inspectorId= localStorage.getItem('inspectorId')
 
              
-                this.url = "/ir-0.0.1/inspection/getMediaDate/inspectorId="+inspectorId+"&assetId="+title;    
+                this.url = "https://dashboard.immuta.io/ir-0.0.1/inspection/getMediaDate/inspectorId="+inspectorId+"&assetId="+title;    
                // alert(this.url);
                  this.$.ajaxDrone.url = this.url;
                 this.$.ajaxDrone.generateRequest();
@@ -307,7 +307,7 @@
                  localStorage.setItem('assetId', "0");
                 inspectorId=localStorage.getItem('inspectorId');
                  
-                 this.url = "/ir-0.0.1/inspection/getAsset/inspectorId="+inspectorId;   
+                 this.url = "https://dashboard.immuta.io/ir-0.0.1/inspection/getAsset/inspectorId="+inspectorId;   
             },
             urlState: function(urlPath) {
                 //  debugger;
