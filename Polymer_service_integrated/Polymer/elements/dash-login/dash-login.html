@@ -129,6 +129,7 @@ input:focus ~ label, input.used ~ label {
       headers='{"Authorization":"Basic aW5zcGVjdGlvbmFwcDpzZWNyZXQ="}'
 	  method="POST"
       on-response="handleResponse"
+      on-error="handleErrorResponse"
       debounce-duration="300"
       last-response="{{ajaxResponse}}">
     </iron-ajax>
@@ -235,33 +236,44 @@ input:focus ~ label, input.used ~ label {
     // }
 	
 	 handleResponse:function(data){
-	 
-	   var access_token=data.detail.response.access_token;
-     
-    
-	   var xx=document.getElementById("basic1");
+	 debugger;
+   
+    var access_token=data.detail.response.access_token;
+     console.log(data.detail.response.inspectorId);
+    inspectorId=data.detail.response.inspectorId;
+     var xx=document.getElementById("basic1");
       xx.style.display="none";
-        localStorage.setItem('inspectorId', username);
+        localStorage.setItem('inspectorId', inspectorId);
       document.querySelector('app-router').go('/my-drone');
+    
+	   
+      },
+
+      handleErrorResponse:function(){
+        alert("username /password combination not valid");
       },
 
     submitForm:function() {
    debugger;
-	var urlPost="http://localhost:8080/ia-0.0.1/oauth/token?grant_type=password";
+	var urlPost="/ia-0.0.1/oauth/token?grant_type=password";
     var url=document.getElementById('loginEndpoint').url;
 	username=document.getElementById('username').value;
 	password=document.getElementById('password').value;
-	document.getElementById('loginEndpoint').url=urlPost+"&username="+username+"&password="+password;
-// document.getElementById('loginEndpoint').generateRequest();
- // document.getElementById('loginEndpoint').url=urlPost;
-  
+console.log(document.getElementById('loginEndpoint').headers.Authorization);
+  document.getElementById('loginEndpoint').headers.username=username;
+  document.getElementById('loginEndpoint').headers.password=password;
+  console.log(document.getElementById('loginEndpoint').headers.Authorization);
+	document.getElementById('loginEndpoint').url=urlPost;
+ document.getElementById('loginEndpoint').generateRequest();
+  document.getElementById('loginEndpoint').url=urlPost;
+  sleep(500);
 
    if(username !=="" && password!=""){ 
     
       var xx=document.getElementById("basic1");
-      xx.style.display="none";
-        localStorage.setItem('inspectorId', username);
-      document.querySelector('app-router').go('/my-drone');
+     // xx.style.display="none";
+    //    localStorage.setItem('inspectorId', username);
+     // document.querySelector('app-router').go('/my-drone');
       
    }
    else
