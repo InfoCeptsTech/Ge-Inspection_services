@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ge.inspection.ir.dao.AssestDao;
 //Dummy service for static json
+
 @RestController
 public class AssetController {
 

@@ -1,8 +1,10 @@
 package com.ge.inspection.ir.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(Include.NON_NULL)
 public class IssueMarkerModel {
@@ -12,13 +14,13 @@ public class IssueMarkerModel {
     private String cssClass;
     private MetadataModel metaData;
     private Object annotation;
-    private Object comments;
+    private List<Object> comments;
     private String defectType;
     private String statusType;
     private String inspectorId;
     private String assetId;
     private String inspectionId;
-    private String description;
+    private List<Object> description;
     
   
 	public String getId() {
@@ -54,7 +56,7 @@ public class IssueMarkerModel {
 	public Object getComments() {
 		return comments;
 	}
-	public void setComments(Object comments) {
+	public void setComments(List<Object> comments) {
 		this.comments = comments;
 	}
 	public String getDefectType() {
@@ -87,15 +89,15 @@ public class IssueMarkerModel {
 	public void setInspectionId(String inspectionId) {
 		this.inspectionId = inspectionId;
 	}
-	public String getDescription() {
+	public List<Object> getDescription() {
 		return description;
 	}
-	public void setDescription(String description) {
+	public void setDescription(List<Object> description) {
 		this.description = description;
 	}
 	public IssueMarkerModel(String id, String issuePath, String cssClass,
-			MetadataModel metaData, Object annotation, Object comments,
-			String defectType, String statusType, String description) {
+			MetadataModel metaData, Object annotation, List<Object> comments,
+			String defectType, String statusType, List<Object> description) {
 		super();
 		this.id = id;
 		this.issuePath = issuePath;

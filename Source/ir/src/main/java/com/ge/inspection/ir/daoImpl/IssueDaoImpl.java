@@ -94,14 +94,18 @@ public class IssueDaoImpl implements IssueDao{
 		List<IssueMarkerModel> issueMarkerList=new ArrayList<IssueMarkerModel>();
 		for(InspectionMedia inspectionMedia:inspectionDtlList){
 			Object annotatedObject=JSONUtil.toObject(inspectionMedia.getAnnotatedMetadata(), Object.class);
-			Object comment=null;
-			if(inspectionMedia.getComment()!=null || inspectionMedia.getComment().trim()!=""){
-				comment=inspectionMedia.getComment();
+			List<Object> commentList=new ArrayList<Object>();
+			List<Object> descList=new ArrayList<Object>();
+			if(inspectionMedia.getComment()!=null && inspectionMedia.getComment().trim().length()>0){
+				commentList=(List<Object>) JSONUtil.toObject(inspectionMedia.getComment(),List.class);
+			}
+			if(inspectionMedia.getDescription()!=null && inspectionMedia.getDescription().trim().length()>0){
+				 descList=(List<Object>) JSONUtil.toObject(inspectionMedia.getDescription(),List.class);
 			}
 			
 			File file=new File(inspectionMedia.getBlobId());
 			String id=file.getName().split("\\.")[0];
-			IssueMarkerModel issueModel=new IssueMarkerModel(id, "/Polymer/images/marker.png", "issue-marker", null,annotatedObject, comment, inspectionMedia.getDefectType(), inspectionMedia.getStatusType(),inspectionMedia.getDescription());
+			IssueMarkerModel issueModel=new IssueMarkerModel(id, "/Polymer/images/marker.png", "issue-marker", null,annotatedObject, commentList, inspectionMedia.getDefectType(), inspectionMedia.getStatusType(),descList);
 		
 			issueMarkerList.add(issueModel);
 		}

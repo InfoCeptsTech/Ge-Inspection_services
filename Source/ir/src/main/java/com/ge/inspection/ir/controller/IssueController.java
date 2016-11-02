@@ -1,5 +1,6 @@
 package com.ge.inspection.ir.controller;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -55,8 +56,11 @@ public class IssueController {
 			Map<String,Object> reqMap=(Map<String, Object>) object;
 			String annotation=JSONUtil.toJson(reqMap.get("annotation"));
 			String blobId=(String)reqMap.get("id");
-			String comment=(String)reqMap.get("comments");
-			String description=(String)reqMap.get("description");
+			
+			String comment=JSONUtil.toJson(reqMap.get("comments"));
+			String description=JSONUtil.toJson(reqMap.get("description"));
+			//String comment=(String)reqMap.get("comments");
+			//String description=(String)reqMap.get("description");
 			String inspectorId=(String)reqMap.get("inspectorId");
 			String defectType=String.valueOf(reqMap.get("defectType"));
 			String statusType=String.valueOf(reqMap.get("statusType"));
@@ -64,9 +68,14 @@ public class IssueController {
 			String assetId=(String)reqMap.get("assetId");
 			Object viewportOffset=reqMap.get("viewportOffset");
 			byte[] imgByte=null;
-			if(viewportOffset!=null){
-				imgByte=imageUtil.captureImage(blobId,  (List<Double>) viewportOffset);
+			try{
+				if(viewportOffset!=null){
+					//imgByte=imageUtil.captureImage(blobId,  (List<Double>) viewportOffset);
+				}
+			}catch(Exception e){
+				e.printStackTrace();
 			}
+			
 			
 			InspectionMedia media=new InspectionMedia(comment, blobId, inspectorId, new Date(), statusType, defectType,  annotation,description,assetId,inspectionId,imgByte,getAnnotatedComments(reqMap.get("annotation")));
 			inspectionMediaList.add(media);
@@ -97,7 +106,7 @@ public class IssueController {
 		for(Object object:reqObject){
 			Map<String,Object> reqMap= (Map<String, Object>) object;
 			String blobId=(String)reqMap.get("id");
-			String comment=(String)reqMap.get("comments");
+			String comment=JSONUtil.toJson(reqMap.get("comments"));
 			String inspectorId=(String)reqMap.get("inspectorId");
 			String defectType=String.valueOf(reqMap.get("defectType"));
 			String statusType=String.valueOf(reqMap.get("statusType"));
@@ -186,8 +195,13 @@ public class IssueController {
 					//if(!ImageUtil.isCompressedFilePresent(compMediaLocation+file.getName())){
 					//	compFilePath=ImageUtil.storeAndCompressedFile(mediaLocation+inspectionMedia.getBlobId(), compMediaLocation);
 					//}
-					 String base64EncodedImg = DatatypeConverter.printBase64Binary(inspectionMedia.getIssueImage());
-					IssueDtlModel issueDtlModel=new IssueDtlModel(inspectionMedia.getDefectType(), "/Polymer/temp/"+compFilePath, inspectionMedia.getBlobId(), "/Polymer/images/marker2.png", inspectionMedia.getStatusType(), "tooltip",base64EncodedImg);
+					String base64EncodedImg =null;
+					if(inspectionMedia.getIssueImage()!=null){
+						 base64EncodedImg = DatatypeConverter.printBase64Binary(inspectionMedia.getIssueImage());
+					}
+					 
+					 File file=new File(inspectionMedia.getBlobId());
+					IssueDtlModel issueDtlModel=new IssueDtlModel(file.getName().split("\\.")[0],inspectionMedia.getDefectType(), "/Polymer/temp/"+compFilePath, inspectionMedia.getBlobId(), "/Polymer/images/marker2.png", inspectionMedia.getStatusType(), "tooltip",base64EncodedImg);
 					set.add(issueDtlModel);
 				}
 				issueInspection.setIssueDtlModel(set);

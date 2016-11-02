@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class IssueDtlModel {
+  private String id;	
   private String defectType;
   private String miniPath;
   private String megaPath;
@@ -16,9 +17,10 @@ public class IssueDtlModel {
   private String issueImage;
   
   
-public IssueDtlModel(String defectType, String miniPath, String megaPath,
+public IssueDtlModel(String id,String defectType, String miniPath, String megaPath,
 		String issuesMarker, String statusType, String toolTip,String issueImage) {
 	super();
+	this.id=id;
 	this.defectType = defectType;
 	this.miniPath = miniPath;
 	this.megaPath = megaPath;
@@ -68,6 +70,12 @@ public String getIssueImage() {
 }
 public void setIssueImage(String issueImage) {
 	this.issueImage = issueImage;
+}
+public String getId() {
+	return id;
+}
+public void setId(String id) {
+	this.id = id;
 }
   
   
