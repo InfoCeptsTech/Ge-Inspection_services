@@ -1,5 +1,5 @@
 <!-- Polymer web component used to display assets list -->
-<link rel="import" href="/Polymer/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 <dom-module id="my-assets">
     <template is="dom-bind">
         <style>
@@ -8,7 +8,7 @@
         }
         </style>
          <iron-ajax id="ajaxAssetDate"
-            url="/ir-0.0.1/inspection/getMediaDate/inspectorId=1&assetId="
+            url="https://dashboard.immuta.io/ir-0.0.1/inspection/getMediaDate/inspectorId=1&assetId="
             handle-as="json"
             on-response="handleResponse"
             debounce-duration="300"></iron-ajax>
@@ -108,7 +108,7 @@
                  inspectorId=localStorage.getItem('assetTitle');
                   localStorage.setItem('inspectionId',inspectionId);
 
-                    this.url = "/ir-0.0.1/inspection/getMedia/inspectorId="+inspectorId+"&assetId="+title+"&inspectionId="+inspectionId;
+                    this.url = "https://dashboard.immuta.io/ir-0.0.1/inspection/getMedia/inspectorId="+inspectorId+"&assetId="+title+"&inspectionId="+inspectionId;
 
                    localStorage.setItem('inspectionId',inspectionId);
                    
@@ -140,9 +140,9 @@
                 inspectorId=localStorage.getItem('inspectorId');
                  //    alert("title in asset: "+title);
                      if(title==null || title=='null'){
-                        this.url = "/ir-0.0.1/inspection/getAsset/inspectorId="+inspectorId;
+                        this.url = "https://dashboard.immuta.io/ir-0.0.1/inspection/getAsset/inspectorId="+inspectorId;
                      }else{
-                         this.url = "/ir-0.0.1/inspection/getMediaDate/inspectorId="+inspectorId+"&assetId="+title;   
+                         this.url = "https://dashboard.immuta.io/ir-0.0.1/inspection/getMediaDate/inspectorId="+inspectorId+"&assetId="+title;   
                      }
                      
                   // alert(this.url); 
