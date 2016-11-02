@@ -1,4 +1,4 @@
-<link rel="import" href="/Polymer/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 <!-- Polymer web component used to display issue list -->
 <dom-module id="my-issues">
     <template>
@@ -33,7 +33,7 @@
         </style>
          <iron-ajax
             id="AjaxPost"
-            url="/ir-0.0.1/inspection/addIssue"
+            url="https://dashboard.immuta.io/ir-0.0.1/inspection/addIssue"
             method="POST"
             content-type="application/json"
             handle-as="json"
@@ -41,12 +41,12 @@
             on-error="_handleAjaxPostError"
             >
         </iron-ajax>
-        <iron-ajax id="ajaxAddUpdatePost" url="/ir-0.0.1/inspection/updateIssue" method="POST" content-type="application/json" handle-as="json" on-response="_handleAjaxPostResponse" on-error="_handleAjaxPostError">
+        <iron-ajax id="ajaxAddUpdatePost" url="https://dashboard.immuta.io/ir-0.0.1/inspection/updateIssue" method="POST" content-type="application/json" handle-as="json" on-response="_handleAjaxPostResponse" on-error="_handleAjaxPostError">
         </iron-ajax>
         <iron-ajax auto id="issueAjax" url="{{markerurl}}" handle-as="json" on-response="handleResponseIssueMarker"></iron-ajax>
         <drones-data-service url="{{url}}" id="ajax" drones-service-response="{{issuesServiceResponse}}">
         </drones-data-service>
-        <report-type-data-service url="/Polymer/report-type.json" report-type-service-response="{{reportTypeServiceResponse}}">
+        <report-type-data-service url="/report-type.json" report-type-service-response="{{reportTypeServiceResponse}}">
         </report-type-data-service>
         <!-- <div class="horizontal-section">
              <span style="background: #F3F3F3;widht:20%;margin-left: 40%;">
@@ -151,8 +151,8 @@
                                                         <paper-button class="submit addComment" on-click="submitComment">Add</paper-button> -->
                                                 </div>
                                                 <div class="editCropSection">
-                                                    <paper-icon-button src="/Polymer/images/zoomout_rest.png" on-click="zoomOut"></paper-icon-button>
-                                                    <paper-icon-button src="/Polymer/images/zoomin_rest.png" on-click="zoomIn"></paper-icon-button>
+                                                    <paper-icon-button src="/images/zoomout_rest.png" on-click="zoomOut"></paper-icon-button>
+                                                    <paper-icon-button src="/images/zoomin_rest.png" on-click="zoomIn"></paper-icon-button>
                                                 </div>
                                             </div>
                                             <!-- <div class="editCropSection">
@@ -1015,9 +1015,9 @@
                 inspectorId = localStorage.getItem('inspectorId');
                 // alert("title in issue : "+title);
                 if (title == null || title == 'null') {
-                    this.url = "/ir-0.0.1/inspection/getIssues/inspectorId=" + inspectorId;
+                    this.url = "https://dashboard.immuta.io/ir-0.0.1/inspection/getIssues/inspectorId=" + inspectorId;
                 } else {
-                    this.url = "/ir-0.0.1/inspection/getIssueDate/inspectorId=" + inspectorId + "&assetId=" + title;
+                    this.url = "https://dashboard.immuta.io/ir-0.0.1/inspection/getIssueDate/inspectorId=" + inspectorId + "&assetId=" + title;
                 }
                 //  alert(this.url);
 
@@ -1025,7 +1025,7 @@
                 if (localStorage.getItem('issueUrl') != '' && localStorage.getItem('issueUrl') != null) {
                     document.getElementById('ajax').generateRequest();
                 }
-                this.markerurl = "/ir-0.0.1/inspection/getIssueMarker/inspectorId=" + inspectorId
+                this.markerurl = "https://dashboard.immuta.io/ir-0.0.1/inspection/getIssueMarker/inspectorId=" + inspectorId
 
 
                 var a = JSON.parse(localStorage.getItem('dronesServiceResponse'));
